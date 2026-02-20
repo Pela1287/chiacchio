@@ -1,0 +1,71 @@
+/* ============================================
+   CHIACCHIO - Componente Badge
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius-full);
+  white-space: nowrap;
+}
+
+/* ===== VARIANTES ===== */
+.default {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.primary {
+  background-color: rgba(45, 122, 79, 0.1);
+  color: var(--color-primary);
+}
+
+.success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* ===== TAMAÑOS ===== */
+.small {
+  padding: 2px var(--space-2);
+  font-size: 10px;
+}
+
+.large {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+/* ===== CON PUNTO ===== */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* ===== OUTLINE ===== */
+.outline {
+  background-color: transparent;
+  border: 1px solid currentColor;
+}

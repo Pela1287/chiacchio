@@ -1,0 +1,204 @@
+/* ============================================
+   CHIACCHIO - Panel Cliente
+   ============================================ */
+
+.welcome {
+  margin-bottom: var(--space-8);
+}
+
+.welcomeTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.welcomeSubtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+@media (min-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statCard {
+  background-color: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+}
+
+.statIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(45, 122, 79, 0.1);
+  border-radius: var(--border-radius);
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+
+.statValue {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.statLabel {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.section {
+  margin-bottom: var(--space-8);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.membresiaCard {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  color: var(--color-white);
+}
+
+.membresiaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.membresiaName {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.membresiaStatus {
+  padding: var(--space-1) var(--space-3);
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.membresiaInfo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .membresiaInfo {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.membresiaItem {
+  text-align: center;
+}
+
+.membresiaItemValue {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-1);
+}
+
+.membresiaItemLabel {
+  font-size: var(--font-size-xs);
+  opacity: 0.8;
+}
+
+.quickActions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .quickActions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .quickActions {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.quickActionCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.quickActionCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.quickActionIcon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(45, 122, 79, 0.1);
+  border-radius: var(--border-radius);
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+
+.quickActionLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.emptyState {
+  padding: var(--space-8);
+  text-align: center;
+  background-color: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  border: 1px dashed var(--border-color);
+}

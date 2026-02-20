@@ -1,0 +1,432 @@
+// ============================================
+// CHIACCHIO - Schema Prisma (MySQL)
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== USUARIOS =====
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?
+  nombre        String
+  apellido      String
+  telefono      String?
+  avatar        String?
+  rol           Rol       @default(CLIENTE)
+  activo        Boolean   @default(true)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relaciones
+  cliente       Cliente?
+  sesiones      Session[]
+  cuentas       Account[]
+  otpRequests   OtpRequest[]
+
+  @@map("usuarios")
+}
+
+enum Rol {
+  SUPER
+  ADMIN
+  CLIENTE
+}
+
+// ===== AUTENTICACION NEXTAUTH =====
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("cuentas")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sesiones")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("tokens_verificacion")
+}
+
+// ===== OTP PARA WHATSAPP =====
+model OtpRequest {
+  id         String   @id @default(cuid())
+  userId     String?
+  telefono   String
+  codigo     String
+  tipo       String
+  verificado Boolean  @default(false)
+  intentos   Int      @default(0)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([telefono])
+  @@map("otp_requests")
+}
+
+// ===== CLIENTES =====
+model Cliente {
+  id            String    @id @default(cuid())
+  usuarioId     String    @unique
+  nombre        String
+  apellido      String
+  email         String
+  telefono      String
+  direccion     String
+  ciudad        String
+  codigoPostal  String
+  notas         String?   @db.Text
+  activo        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relaciones
+  usuario       User      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  membresias    Membresia[]
+  solicitudes   Solicitud[]
+  presupuestos  Presupuesto[]
+  pagos         Pago[]
+
+  @@index([email])
+  @@index([telefono])
+  @@map("clientes")
+}
+
+// ===== MEMBRESIAS =====
+model Membresia {
+  id                    String          @id @default(cuid())
+  clienteId             String
+  plan                  PlanMembresia
+  precio                Decimal         @db.Decimal(10, 2)
+  estado                EstadoMembresia @default(ACTIVA)
+  fechaInicio           DateTime
+  fechaFin              DateTime?
+  fechaProximoPago      DateTime
+  serviciosDisponibles  Int
+  serviciosUsados       Int             @default(0)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  cliente               Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  pagos                 Pago[]
+
+  @@index([clienteId])
+  @@index([estado])
+  @@map("membresias")
+}
+
+enum PlanMembresia {
+  BASICO
+  ESTANDAR
+  PREMIUM
+}
+
+enum EstadoMembresia {
+  ACTIVA
+  PAUSADA
+  CANCELADA
+  VENCIDA
+}
+
+// ===== SERVICIOS =====
+model Servicio {
+  id                  String            @id @default(cuid())
+  nombre              String
+  descripcion         String            @db.Text
+  categoria           CategoriaServicio
+  tarifaBase          Decimal           @db.Decimal(10, 2)
+  duracionEstimada    Int
+  activo              Boolean           @default(true)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  solicitudes         Solicitud[]
+
+  @@index([categoria])
+  @@map("servicios")
+}
+
+enum CategoriaServicio {
+  MANTENIMIENTO
+  OBRA
+  INSTALACION
+  REPARACION
+}
+
+// ===== SOLICITUDES =====
+model Solicitud {
+  id                String            @id @default(cuid())
+  clienteId         String
+  servicioId        String
+  direccion         String
+  ciudad            String
+  descripcion       String            @db.Text
+  estado            EstadoSolicitud   @default(PENDIENTE)
+  prioridad         Prioridad         @default(MEDIA)
+  fechaSolicitada   DateTime          @default(now())
+  fechaProgramada   DateTime?
+  fechaCompletada   DateTime?
+  notas             String?           @db.Text
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  cliente           Cliente           @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  servicio          Servicio          @relation(fields: [servicioId], references: [id])
+  presupuesto       Presupuesto?
+
+  @@index([clienteId])
+  @@index([estado])
+  @@map("solicitudes")
+}
+
+enum EstadoSolicitud {
+  PENDIENTE
+  CONFIRMADA
+  EN_PROGRESO
+  COMPLETADA
+  CANCELADA
+}
+
+enum Prioridad {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+// ===== PRESUPUESTOS =====
+model Presupuesto {
+  id                  String            @id @default(cuid())
+  numero              Int               @default(autoincrement())
+  clienteId           String?
+  solicitudId         String?           @unique
+  // Datos del cliente (para presupuestos manuales sin cliente registrado)
+  clienteNombre       String?
+  clienteDireccion    String?
+  clienteTelefono     String?
+  clienteEmail        String?
+  // Lugar y fecha
+  lugar               String            @default("La Plata")
+  fecha               DateTime          @default(now())
+  // Montos
+  subtotal            Decimal           @db.Decimal(12, 2)
+  descuentoPorcentaje Decimal           @default(0) @db.Decimal(5, 2)
+  descuentoMonto      Decimal           @default(0) @db.Decimal(12, 2)
+  iva                 Decimal           @db.Decimal(12, 2) @default(0)
+  total               Decimal           @db.Decimal(12, 2)
+  // Financiación
+  financiacion        String            @default("contado") // contado, 3_cuotas, acuerdo
+  cuotas              Int               @default(1)
+  // Estado
+  estado              EstadoPresupuesto @default(PENDIENTE)
+  fechaEmision        DateTime          @default(now())
+  fechaValidez        DateTime?
+  notas               String?           @db.Text
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  cliente             Cliente?          @relation(fields: [clienteId], references: [id])
+  solicitud           Solicitud?        @relation(fields: [solicitudId], references: [id])
+  items               PresupuestoItem[]
+  pagos               Pago[]
+
+  @@index([clienteId])
+  @@index([estado])
+  @@index([solicitudId])
+  @@map("presupuestos")
+}
+
+model PresupuestoItem {
+  id              String    @id @default(cuid())
+  presupuestoId   String
+  descripcion     String
+  cantidad        Decimal   @db.Decimal(10, 2)
+  precioUnitario  Decimal   @db.Decimal(12, 2)
+  subtotal        Decimal   @db.Decimal(12, 2)
+
+  presupuesto     Presupuesto @relation(fields: [presupuestoId], references: [id], onDelete: Cascade)
+
+  @@map("presupuesto_items")
+}
+
+enum EstadoPresupuesto {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+  VENCIDO
+}
+
+// ===== PAGOS =====
+model Pago {
+  id            String        @id @default(cuid())
+  clienteId     String
+  membresiaId   String?
+  presupuestoId String?
+  monto         Decimal       @db.Decimal(12, 2)
+  metodo        MetodoPago
+  estado        EstadoPago    @default(PENDIENTE)
+  referencia    String?
+  fechaPago     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  cliente       Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  membresia     Membresia?    @relation(fields: [membresiaId], references: [id])
+  presupuesto   Presupuesto?  @relation(fields: [presupuestoId], references: [id])
+
+  @@index([clienteId])
+  @@map("pagos")
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TRANSFERENCIA
+  TARJETA
+  MERCADOPAGO
+}
+
+enum EstadoPago {
+  PENDIENTE
+  COMPLETADO
+  FALLIDO
+  REEMBOLSADO
+}
+
+// ===== LEADS (captados por el bot) =====
+model Lead {
+  id            String        @id @default(cuid())
+  nombre        String
+  telefono      String
+  email         String?
+  zona          String
+  necesidad     String        @db.Text
+  conversacion  Json?
+  estado        EstadoLead    @default(NUEVO)
+  clienteId     String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([estado])
+  @@index([telefono])
+  @@map("leads")
+}
+
+enum EstadoLead {
+  NUEVO
+  CONTACTADO
+  CALIFICADO
+  CONVERTIDO
+  PERDIDO
+}
+
+// ===== NOTIFICACIONES WHATSAPP =====
+model NotificacionWhatsApp {
+  id          String              @id @default(cuid())
+  tipo        String
+  destino     String
+  mensaje     String              @db.Text
+  estado      EstadoNotificacion  @default(PENDIENTE)
+  referenciaId String?
+  error       String?             @db.Text
+  enviadoAt   DateTime?
+  createdAt   DateTime            @default(now())
+
+  @@index([estado])
+  @@map("notificaciones_whatsapp")
+}
+
+enum EstadoNotificacion {
+  PENDIENTE
+  ENVIADO
+  FALLIDO
+}
+
+// ===== TECNICOS =====
+model Tecnico {
+  id            String    @id @default(cuid())
+  nombre        String
+  apellido      String
+  especialidad  String?
+  telefono      String?
+  avatar        String?
+  activo        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([activo])
+  @@map("tecnicos")
+}
+
+// ===== ARTICULOS KB (para RAG del bot) =====
+model KbArticulo {
+  id          String    @id @default(cuid())
+  titulo      String
+  contenido   String    @db.Text
+  categoria   String
+  activo      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  embeddings  KbEmbedding[]
+
+  @@index([categoria])
+  @@map("kb_articulos")
+}
+
+model KbEmbedding {
+  id          String    @id @default(cuid())
+  articuloId  String
+  contenido   String    @db.Text
+  embedding   String    @db.Text
+  createdAt   DateTime  @default(now())
+
+  articulo    KbArticulo @relation(fields: [articuloId], references: [id], onDelete: Cascade)
+
+  @@map("kb_embeddings")
+}
+
+// ===== CONFIGURACION =====
+model Configuracion {
+  id          String    @id @default(cuid())
+  clave       String    @unique
+  valor       String    @db.Text
+  descripcion String?
+  updatedAt   DateTime  @updatedAt
+
+  @@map("configuracion")
+}

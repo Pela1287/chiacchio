@@ -1,0 +1,118 @@
+/* ============================================
+   CHIACCHIO - Componente Modal
+   ============================================ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: var(--z-modal-backdrop);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-modal);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.2s ease;
+}
+
+/* ===== TAMAÑOS ===== */
+.small {
+  width: 90%;
+  max-width: 400px;
+}
+
+.medium {
+  width: 90%;
+  max-width: 560px;
+}
+
+.large {
+  width: 90%;
+  max-width: 720px;
+}
+
+.full {
+  width: 95%;
+  max-width: 1200px;
+  height: 90vh;
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.closeButton:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.closeIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ===== BODY ===== */
+.body {
+  padding: var(--space-5);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .small,
+  .medium,
+  .large {
+    max-width: none;
+  }
+}

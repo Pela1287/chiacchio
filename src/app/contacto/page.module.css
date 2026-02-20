@@ -1,0 +1,158 @@
+/* ============================================
+   CHIACCHIO - Contacto
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+}
+
+.hero {
+  background: linear-gradient(135deg, var(--color-secondary) 0%, #1e4a3a 100%);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+  margin-bottom: var(--space-4);
+}
+
+.heroDescription {
+  font-size: var(--font-size-lg);
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-10);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1.5fr;
+  }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.infoCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+.infoIcon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(45, 122, 79, 0.1);
+  border-radius: var(--border-radius);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.infoIcon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.infoTitle {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.infoText {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.form {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+}
+
+.formTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-6);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .formGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Success State */
+.successCard {
+  max-width: 500px;
+  margin: var(--space-20) auto;
+  padding: var(--space-10);
+  background-color: var(--bg-primary);
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-success-bg);
+  border-radius: 50%;
+  color: var(--color-success);
+  margin: 0 auto var(--space-6);
+}
+
+.successIcon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.successTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.successText {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}

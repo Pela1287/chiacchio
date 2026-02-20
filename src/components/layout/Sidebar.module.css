@@ -1,0 +1,190 @@
+/* ============================================
+   CHIACCHIO - Componente Sidebar
+   ============================================ */
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: var(--header-height);
+  bottom: 0;
+  width: var(--sidebar-width);
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  transition: transform var(--transition-normal), width var(--transition-normal);
+  z-index: var(--z-fixed);
+}
+
+.collapsed {
+  width: var(--sidebar-width-collapsed);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 1023px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+  }
+
+  .open {
+    transform: translateX(0);
+  }
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: calc(var(--z-fixed) - 1);
+  top: var(--header-height);
+}
+
+@media (max-width: 1023px) {
+  .overlay.open {
+    display: block;
+  }
+}
+
+.nav {
+  padding: var(--space-4);
+}
+
+.section {
+  margin-bottom: var(--space-6);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.collapsed .sectionTitle {
+  display: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-fast);
+  margin-bottom: var(--space-1);
+}
+
+.link:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.link.active {
+  background-color: rgba(45, 122, 79, 0.1);
+  color: var(--color-primary);
+}
+
+.linkIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.linkText {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsed .linkText {
+  display: none;
+}
+
+.collapsed .link {
+  justify-content: center;
+  padding: var(--space-3);
+}
+
+/* ===== BADGE ===== */
+.badge {
+  font-size: var(--font-size-xs);
+  padding: 2px var(--space-2);
+  background-color: var(--color-error);
+  color: var(--color-white);
+  border-radius: var(--border-radius-full);
+  font-weight: var(--font-weight-medium);
+}
+
+.collapsed .badge {
+  display: none;
+}
+
+/* ===== USER SECTION ===== */
+.userSection {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+.userDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+.collapsed .userDetails,
+.collapsed .logoutButton {
+  display: none;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius);
+  color: var(--text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.logoutButton:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--color-error);
+}
+
+.logoutIcon {
+  width: 16px;
+  height: 16px;
+}

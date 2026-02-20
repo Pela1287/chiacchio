@@ -1,0 +1,248 @@
+.container {
+  min-height: 100vh;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+  padding: var(--space-16) var(--space-4);
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: white;
+  margin-bottom: var(--space-4);
+}
+
+.heroSubtitle {
+  font-size: var(--font-size-xl);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Section */
+.section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-4);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Técnico Card */
+.tecnicoCard {
+  text-align: center;
+  padding: var(--space-6);
+  border: 2px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.tecnicoCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
+  transform: translateY(-4px);
+}
+
+.avatarWrapper {
+  margin-bottom: var(--space-4);
+}
+
+.avatar,
+.avatarPlaceholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto;
+}
+
+.avatarPlaceholder {
+  background: linear-gradient(135deg, var(--color-primary), #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.nombre {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.especialidad {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+
+.badges {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-success-bg);
+  color: #166534;
+  border-radius: var(--border-radius-full);
+}
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: var(--space-12);
+}
+
+.contactLink {
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Info Section */
+.infoSection {
+  background: var(--bg-secondary);
+  padding: var(--space-12) var(--space-4);
+}
+
+.infoTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  margin-bottom: var(--space-8);
+  color: var(--text-primary);
+}
+
+.infoGrid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 1024px) {
+  .infoGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.infoItem {
+  text-align: center;
+}
+
+.infoIcon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: var(--space-3);
+}
+
+.infoItem h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+.infoItem p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* CTA */
+.ctaSection {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.ctaTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+
+.ctaText {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.ctaButtons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.ctaButton,
+.ctaWhatsapp {
+  display: inline-block;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--border-radius);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.ctaButton {
+  background: var(--color-primary);
+  color: white;
+}
+
+.ctaButton:hover {
+  background: var(--color-primary-dark);
+}
+
+.ctaWhatsapp {
+  background: #22c55e;
+  color: white;
+}
+
+.ctaWhatsapp:hover {
+  background: #16a34a;
+}

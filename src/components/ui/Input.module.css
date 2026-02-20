@@ -1,0 +1,124 @@
+/* ============================================
+   CHIACCHIO - Componente Input
+   ============================================ */
+
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: var(--space-1);
+}
+
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: all var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--border-color-hover);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.1);
+}
+
+.input:disabled {
+  background-color: var(--bg-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ===== ESTADOS DE VALIDACIÓN ===== */
+.error {
+  border-color: var(--color-error);
+}
+
+.error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.success {
+  border-color: var(--color-success);
+}
+
+.success:focus {
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* ===== CON ICONO ===== */
+.hasIcon {
+  padding-left: var(--space-10);
+}
+
+.hasIconRight {
+  padding-right: var(--space-10);
+}
+
+.icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  width: 20px;
+  height: 20px;
+}
+
+.iconRight {
+  left: auto;
+  right: var(--space-3);
+}
+
+/* ===== MENSAJES ===== */
+.errorMessage {
+  font-size: var(--font-size-xs);
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.helperText {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* ===== TAMAÑOS ===== */
+.small .input {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.large .input {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--font-size-lg);
+}

@@ -1,0 +1,99 @@
+================================================
+CHIACCHIO - ESTRUCTURA DE CARPETAS LOCAL
+================================================
+
+1. CREAR esta estructura de carpetas en tu PC:
+
+C:\xampp\htdocs\chiacchio\
+├── src\
+│   ├── app\
+│   │   ├── auth\
+│   │   │   └── login\
+│   │   ├── contacto\
+│   │   ├── deslinde\
+│   │   ├── panel\
+│   │   │   ├── admin\
+│   │   │   │   ├── clientes\
+│   │   │   │   ├── leads\
+│   │   │   │   ├── membresias\
+│   │   │   │   ├── presupuestos\
+│   │   │   │   ├── servicios\
+│   │   │   │   └── solicitudes\
+│   │   │   ├── cliente\
+│   │   │   └── super\
+│   │   │       ├── configuracion\
+│   │   │       └── usuarios\
+│   │   ├── quienes-somos\
+│   │   └── api\
+│   ├── components\
+│   │   ├── ui\
+│   │   ├── layout\
+│   │   └── chat\
+│   ├── data\
+│   ├── hooks\
+│   ├── lib\
+│   ├── styles\
+│   └── types\
+├── public\
+│   └── images\
+├── prisma\
+└── download\
+
+================================================
+COMANDOS PARA CREAR CARPETAS (Windows CMD)
+================================================
+
+cd C:\xampp\htdocs
+mkdir chiacchio
+cd chiacchio
+mkdir src
+mkdir public
+mkdir prisma
+mkdir download
+cd src
+mkdir app
+mkdir components
+mkdir data
+mkdir hooks
+mkdir lib
+mkdir styles
+mkdir types
+cd app
+mkdir auth
+mkdir contacto
+mkdir deslinde
+mkdir panel
+mkdir "quienes-somos"
+mkdir api
+cd auth
+mkdir login
+cd ..
+cd panel
+mkdir admin
+mkdir cliente
+mkdir super
+cd admin
+mkdir clientes
+mkdir leads
+mkdir membresias
+mkdir presupuestos
+mkdir servicios
+mkdir solicitudes
+cd ..
+cd super
+mkdir configuracion
+mkdir usuarios
+cd ..\..
+cd components
+mkdir ui
+mkdir layout
+mkdir chat
+
+================================================
+ARCHIVOS QUE NECESITAS COPIAR
+================================================
+
+Los archivos están disponibles en el servidor.
+Copia cada archivo a su ubicación correspondiente.
+
+================================================

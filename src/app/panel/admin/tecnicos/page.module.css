@@ -1,0 +1,238 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+  transition: color var(--transition-fast);
+}
+
+.backLink:hover {
+  color: var(--color-primary);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+}
+
+/* Form */
+.formCard {
+  margin-bottom: var(--space-6);
+}
+
+.formTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.avatarSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.avatarWrapper:hover .avatarOverlay {
+  opacity: 1;
+}
+
+.avatarInfo {
+  flex: 1;
+}
+
+.avatarLabel {
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-1);
+}
+
+.avatarDesc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  margin-top: var(--space-4);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+/* Card */
+.tecnicoCard {
+  text-align: center;
+  padding: var(--space-5);
+  border: 2px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.tecnicoCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.1);
+}
+
+.inactivo {
+  opacity: 0.6;
+}
+
+.tecnicoAvatar {
+  position: relative;
+  display: inline-block;
+  margin-bottom: var(--space-3);
+}
+
+.tecnicoAvatarImg,
+.tecnicoAvatarPlaceholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-primary);
+}
+
+.tecnicoAvatarPlaceholder {
+  background: linear-gradient(135deg, var(--color-primary), #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.estadoBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+}
+
+.activo {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.inactivoBadge {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tecnicoInfo {
+  margin-bottom: var(--space-4);
+}
+
+.tecnicoNombre {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.tecnicoEspecialidad {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+
+.tecnicoTelefono {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.tecnicoActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Empty */
+.emptyState {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--text-secondary);
+}
