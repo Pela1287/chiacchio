@@ -9,6 +9,7 @@ import { prisma } from '@/lib/prisma';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,29 +59,60 @@ export async function POST(request: NextRequest) {
       })),
     });
 
-    // Generar nombre de archivo único
+    // Usar carpeta temporal del sistema (funciona en Windows y Linux)
+    const tmpDir = os.tmpdir();
     const fileName = `Presupuesto_${presupuesto.numero}_${Date.now()}.pdf`;
-    const outputPath = path.join('/home/z/my-project/download', fileName);
+    const outputPath = path.join(tmpDir, fileName);
+    const jsonTempPath = path.join(tmpDir, `presupuesto_${Date.now()}.json`);
 
-    // Ejecutar script Python
-    const scriptPath = '/home/z/my-project/scripts/generate_presupuesto_pdf.py';
-
-    // Crear archivo temporal con JSON
-    const jsonTempPath = `/tmp/presupuesto_${Date.now()}.json`;
+    // Guardar JSON temporal
     fs.writeFileSync(jsonTempPath, presupuestoJson);
 
+    // Buscar el script de Python
+    // Primero intentar en la misma carpeta del proyecto
+    const possibleScriptPaths = [
+      path.join(process.cwd(), 'scripts', 'generate_presupuesto_pdf.py'),
+      path.join(process.cwd(), '..', 'scripts', 'generate_presupuesto_pdf.py'),
+      '/home/z/my-project/scripts/generate_presupuesto_pdf.py',
+    ];
+
+    let scriptPath = null;
+    for (const p of possibleScriptPaths) {
+      if (fs.existsSync(p)) {
+        scriptPath = p;
+        break;
+      }
+    }
+
+    if (!scriptPath) {
+      console.error('Script Python no encontrado');
+      return NextResponse.json(
+        { error: 'Script de generación PDF no encontrado' },
+        { status: 500 }
+      );
+    }
+
     try {
-      execSync(`python3 ${scriptPath} '${presupuestoJson}' ${outputPath}`, {
+      // Ejecutar script Python
+      // En Windows, usar python en lugar de python3
+      const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+      
+      execSync(`"${pythonCmd}" "${scriptPath}" "${presupuestoJson}" "${outputPath}"`, {
         encoding: 'utf-8',
         timeout: 30000,
+        maxBuffer: 10 * 1024 * 1024, // 10MB
       });
 
       // Leer PDF generado
       const pdfBuffer = fs.readFileSync(outputPath);
 
-      // Limpiar archivo temporal
-      fs.unlinkSync(jsonTempPath);
-      fs.unlinkSync(outputPath);
+      // Limpiar archivos temporales
+      try {
+        fs.unlinkSync(jsonTempPath);
+        fs.unlinkSync(outputPath);
+      } catch (e) {
+        // Ignorar errores de limpieza
+      }
 
       // Devolver PDF
       return new NextResponse(pdfBuffer, {
@@ -92,9 +124,16 @@ export async function POST(request: NextRequest) {
     } catch (execError) {
       console.error('Error executing Python script:', execError);
       // Limpiar archivos temporales
-      if (fs.existsSync(jsonTempPath)) fs.unlinkSync(jsonTempPath);
-      if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-      throw execError;
+      try {
+        if (fs.existsSync(jsonTempPath)) fs.unlinkSync(jsonTempPath);
+        if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
+      } catch (e) {
+        // Ignorar errores de limpieza
+      }
+      return NextResponse.json(
+        { error: 'Error al generar el PDF. Verificá que Python esté instalado.' },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error('Error generating PDF:', error);
