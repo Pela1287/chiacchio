@@ -97,8 +97,11 @@ export default function PresupuestosPage() {
     if (status === 'unauthenticated') {
       router.push('/login');
     }
-    if (session && ['SUPER', 'ADMIN'].includes(session.user.rol)) {
-      fetchData();
+    if (session) {
+      const userRole = (session.user as any).role || (session.user as any).rol;
+      if (['SUPER', 'ADMIN'].includes(userRole)) {
+        fetchData();
+      }
     }
   }, [session, status, router]);
 

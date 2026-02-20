@@ -60,9 +60,16 @@ export default function ServiciosPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
+      return;
     }
-    if (session && ['SUPER', 'ADMIN'].includes(session.user.rol)) {
-      fetchServicios();
+    if (status === 'authenticated' && session) {
+      const userRole = (session.user as any).role || (session.user as any).rol;
+      if (['SUPER', 'ADMIN'].includes(userRole)) {
+        fetchServicios();
+      } else {
+        // No tiene permisos
+        setLoading(false);
+      }
     }
   }, [session, status, router]);
 

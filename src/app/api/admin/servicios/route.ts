@@ -11,12 +11,8 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
-    console.log('SESSION DEBUG:', JSON.stringify(session, null, 2));
-    console.log('ROLE:', session?.user?.role);
 
     if (!session || !['SUPER', 'ADMIN'].includes(session.user?.role || '')) {
-      console.log('NO AUTORIZADO - role:', session?.user?.role);
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
