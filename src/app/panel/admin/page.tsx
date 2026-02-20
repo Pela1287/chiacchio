@@ -185,6 +185,45 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* Accesos Rápidos */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>🚀 Accesos Rápidos</h2>
+        <div className={styles.accesosGrid}>
+          <button 
+            className={styles.accesoCard}
+            onClick={() => router.push('/panel/admin/servicios')}
+          >
+            <span className={styles.accesoIcon}>🔧</span>
+            <span className={styles.accesoLabel}>Servicios</span>
+            <span className={styles.accesoDesc}>Gestionar servicios y precios</span>
+          </button>
+          <button 
+            className={styles.accesoCard}
+            onClick={() => router.push('/panel/admin/presupuestos')}
+          >
+            <span className={styles.accesoIcon}>📄</span>
+            <span className={styles.accesoLabel}>Presupuestos</span>
+            <span className={styles.accesoDesc}>Crear y gestionar presupuestos</span>
+          </button>
+          <button 
+            className={styles.accesoCard}
+            onClick={() => router.push('/panel/admin/clientes')}
+          >
+            <span className={styles.accesoIcon}>👥</span>
+            <span className={styles.accesoLabel}>Clientes</span>
+            <span className={styles.accesoDesc}>Ver y gestionar clientes</span>
+          </button>
+          <button 
+            className={styles.accesoCard}
+            onClick={() => router.push('/panel/admin/membresias')}
+          >
+            <span className={styles.accesoIcon}>💳</span>
+            <span className={styles.accesoLabel}>Membresías</span>
+            <span className={styles.accesoDesc}>Activar membresías</span>
+          </button>
+        </div>
+      </div>
+
       {/* Solicitudes */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>⚡ Solicitudes de Servicio</h2>
