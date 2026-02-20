@@ -11,12 +11,8 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
-    console.log('GET Presupuestos - Session:', session?.user);
-    console.log('GET Presupuestos - Role:', session?.user?.role);
 
     if (!session || !['SUPER', 'ADMIN'].includes(session.user?.role || '')) {
-      console.log('GET Presupuestos - NO AUTORIZADO');
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
@@ -44,17 +40,12 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
-    console.log('POST Presupuesto - Session:', session?.user);
-    console.log('POST Presupuesto - Role:', session?.user?.role);
 
     if (!session || !['SUPER', 'ADMIN'].includes(session.user?.role || '')) {
-      console.log('POST Presupuesto - NO AUTORIZADO');
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const body = await request.json();
-    console.log('POST Presupuesto - Body:', JSON.stringify(body, null, 2));
     const {
       clienteId,
       clienteNombre,
