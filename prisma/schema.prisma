@@ -232,7 +232,7 @@ enum Prioridad {
 // ===== PRESUPUESTOS =====
 model Presupuesto {
   id                  String            @id @default(cuid())
-  numero              Int               @default(autoincrement())
+  numero              Int               @default(autoincrement()) @unique
   clienteId           String?
   solicitudId         String?           @unique
   // Datos del cliente (para presupuestos manuales sin cliente registrado)
