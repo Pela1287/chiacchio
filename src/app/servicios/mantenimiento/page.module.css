@@ -1,0 +1,248 @@
+/* ============================================
+   Mantenimiento - Estilos
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1e3a5f 100%);
+  color: white;
+  padding: var(--space-16) var(--space-4);
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+/* Sections */
+.section {
+  padding: var(--space-12) var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionLight {
+  padding: var(--space-12) var(--space-4);
+  background: var(--bg-tertiary);
+}
+
+.sectionTitle {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: var(--space-8);
+  color: var(--text-primary);
+}
+
+/* Services Grid */
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-6);
+}
+
+.serviceCard {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.serviceCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.serviceIcon {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-4);
+}
+
+.serviceCard h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
+}
+
+.serviceCard p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Steps */
+.steps {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-8);
+}
+
+.step {
+  text-align: center;
+}
+
+.stepNumber {
+  width: 60px;
+  height: 60px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 auto var(--space-4);
+}
+
+.step h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+.step p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Benefits Card */
+.benefitsCard {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1e3a5f 100%);
+  color: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.benefitsCard h2 {
+  font-size: 1.75rem;
+  margin-bottom: var(--space-6);
+}
+
+.benefitsList {
+  list-style: none;
+  padding: 0;
+  max-width: 500px;
+  margin: 0 auto var(--space-6);
+  text-align: left;
+}
+
+.benefitsList li {
+  padding: var(--space-3) 0;
+  font-size: 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.benefitsList li:last-child {
+  border-bottom: none;
+}
+
+.ctaButton {
+  display: inline-block;
+  background: white;
+  color: var(--color-primary);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.ctaButton:hover {
+  transform: scale(1.05);
+}
+
+/* CTA */
+.cta {
+  background: var(--bg-tertiary);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.cta h2 {
+  font-size: 2rem;
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+.cta p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.ctaButtons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.whatsappButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: #25D366;
+  color: white;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.whatsappButton:hover {
+  background: #128C7E;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .servicesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "chiacchio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.1.1",
+    "@prisma/client": "^6.11.1",
+    "date-fns": "^4.1.0",
+    "next": "^15.3.0",
+    "next-auth": "^4.24.11",
+    "prisma": "^6.11.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.60.0",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.0",
+    "zustand": "^5.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^10",
+    "eslint": "^9",
+    "eslint-config-next": "^15.3.0",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,239 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+  transition: color var(--transition-fast);
+}
+
+.backLink:hover {
+  color: var(--color-primary);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+}
+
+/* Servicios Card */
+.serviciosCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: none;
+}
+
+.serviciosInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.serviciosIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-lg);
+  background: #f59e0b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.serviciosLabel {
+  font-size: var(--font-size-sm);
+  color: #92400e;
+  margin-bottom: var(--space-1);
+}
+
+.serviciosValue {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: #78350f;
+}
+
+.serviciosBar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.serviciosBarFill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 4px;
+  transition: width var(--transition-normal);
+}
+
+/* Form Card */
+.formCard {
+  padding: var(--space-6);
+}
+
+.formSection {
+  margin-bottom: var(--space-6);
+}
+
+.formSectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+/* Tipos Grid */
+.tiposGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .tiposGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tipoCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-white);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.tipoCard:hover {
+  border-color: var(--color-primary);
+  background: #f0fdf4;
+}
+
+.tipoCardSelected {
+  border-color: var(--color-primary);
+  background: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.tipoLabel {
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.tipoDesc {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* Urgencia Grid */
+.urgenciaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .urgenciaGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.urgenciaCard {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-white);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.urgenciaCard:hover {
+  border-color: var(--color-primary);
+}
+
+.urgenciaCardSelected {
+  background: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.urgenciaLabel {
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+}
+
+/* Textarea */
+.textareaGroup {
+  margin-bottom: var(--space-4);
+}
+
+.textareaLabel {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Actions */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+}
+
+/* No Membresía */
+.noMembresia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8);
+}

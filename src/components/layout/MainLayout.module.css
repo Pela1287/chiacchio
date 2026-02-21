@@ -1,0 +1,61 @@
+/* ============================================
+   CHIACCHIO - Layout Principal
+   ============================================ */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+}
+
+/* ===== LAYOUT CON SIDEBAR ===== */
+.panelLayout {
+  display: flex;
+  min-height: calc(100vh - var(--header-height));
+}
+
+.panelContent {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: var(--space-6);
+  background-color: var(--bg-secondary);
+  min-height: calc(100vh - var(--header-height));
+  transition: margin-left var(--transition-normal);
+}
+
+.sidebarCollapsed {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+@media (max-width: 1023px) {
+  .panelContent {
+    margin-left: 0;
+  }
+}
+
+/* ===== CONTENEDOR DE PÁGINA ===== */
+.pageContainer {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+}
+
+/* ===== HEADER DE PÁGINA ===== */
+.pageHeader {
+  margin-bottom: var(--space-6);
+}
+
+.pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.pageDescription {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+}

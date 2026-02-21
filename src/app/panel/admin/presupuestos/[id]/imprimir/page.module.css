@@ -1,0 +1,315 @@
+/* ============================================
+   CHIACCHIO - Vista de Impresión de Presupuesto
+   ============================================ */
+
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 20px;
+}
+
+.loading,
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.error {
+  color: #ef4444;
+}
+
+/* Botones de acción (no se imprimen) */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.btnPrimary {
+  padding: 10px 24px;
+  background: #1e3a5f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnPrimary:hover {
+  background: #2d4a6f;
+}
+
+.btnSecondary {
+  padding: 10px 24px;
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnSecondary:hover {
+  background: #f3f4f6;
+}
+
+/* Área imprimible */
+.printArea {
+  background: white;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Membrete */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.empresa {
+  font-size: 32px;
+  font-weight: bold;
+  color: #1e3a5f;
+  margin: 0 0 4px 0;
+}
+
+.subempresa {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 4px 0;
+}
+
+.contacto {
+  font-size: 11px;
+  color: #9ca3af;
+  margin: 0 0 15px 0;
+}
+
+.linea {
+  height: 3px;
+  background: #1e3a5f;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Título */
+.titulo {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1e3a5f;
+  margin: 25px 0;
+}
+
+/* Datos */
+.datos {
+  margin-bottom: 25px;
+}
+
+.datoRow {
+  display: flex;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.datoLabel {
+  width: 100px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.datoValor {
+  flex: 1;
+  color: #111827;
+}
+
+/* Tabla */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+  font-size: 11px;
+}
+
+.tabla th {
+  background: #1e3a5f;
+  color: white;
+  padding: 10px 8px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.tabla td {
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rowAlt {
+  background: #f9fafb;
+}
+
+.colItem {
+  width: 40px;
+  text-align: center;
+}
+
+.colDesc {
+  width: auto;
+}
+
+.colCant {
+  width: 50px;
+  text-align: center;
+}
+
+.colPrecio,
+.colSubtotal {
+  width: 90px;
+  text-align: right;
+}
+
+/* Totales */
+.totales {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 30px;
+}
+
+.totalesInner {
+  width: 250px;
+}
+
+.totalesRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.totalesRowDesc {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+  color: #059669;
+}
+
+.totalesRowTotal {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1e3a5f;
+  border-top: 2px solid #1e3a5f;
+  margin-top: 4px;
+}
+
+/* Notas */
+.notas {
+  font-size: 11px;
+  color: #4b5563;
+  margin-bottom: 40px;
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 4px;
+}
+
+/* Firmas */
+.firmas {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 60px;
+  margin-bottom: 30px;
+}
+
+.firma {
+  width: 200px;
+  text-align: center;
+}
+
+.firmaLinea {
+  border-bottom: 1px solid #111827;
+  margin-bottom: 8px;
+}
+
+.firmaTitulo {
+  font-weight: bold;
+  font-size: 12px;
+  margin: 0 0 8px 0;
+}
+
+.firmaFecha {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 4px 0;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  font-size: 9px;
+  color: #9ca3af;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ============================================
+   ESTILOS DE IMPRESIÓN
+   ============================================ */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .container {
+    background: white;
+    padding: 0;
+  }
+
+  .actions {
+    display: none !important;
+  }
+
+  .printArea {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    max-width: none;
+  }
+
+  .empresa {
+    color: #1e3a5f !important;
+  }
+
+  .tabla th {
+    background: #1e3a5f !important;
+    color: white !important;
+  }
+
+  .rowAlt {
+    background: #f9fafb !important;
+  }
+
+  .linea {
+    background: #1e3a5f !important;
+  }
+}
