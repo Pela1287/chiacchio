@@ -1,22 +1,17 @@
-/* ============================================
-   CHIACCHIO - Admin - Membresías Activas
-   ============================================ */
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Badge, LoadingOverlay } from '@/components/ui';
+import { Badge, Button, LoadingOverlay, useToast } from '@/components/ui';
 import styles from '../clientes/page.module.css';
 
 interface Membresia {
   id: string;
-  plan: string;
   precio: number;
   estado: string;
   fechaInicio: string;
-  fechaProximoPago: string;
-  serviciosUsados: number;
+  fechaVencimiento: string;
+  ultimoPago: string | null;
   cliente: {
     nombre: string;
     apellido: string;
@@ -27,8 +22,10 @@ interface Membresia {
 
 export default function MembresiasPage() {
   const { data: session } = useSession();
+  const { showToast } = useToast();
   const [membresias, setMembresias] = useState<Membresia[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actualizando, setActualizando] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -50,22 +47,61 @@ export default function MembresiasPage() {
     }
   };
 
-  const getDiasRestantes = (fechaProximoPago: string) => {
+  const cambiarEstado = async (membresiaId: string, accion: string) => {
+    if (!confirm(`¿Confirmar acción: ${accion}?`)) return;
+
+    setActualizando(membresiaId);
+    try {
+      const res = await fetch('/api/admin/membresias', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ membresiaId, accion }),
+      });
+
+      if (res.ok) {
+        showToast({
+          type: 'success',
+          title: 'Membresía actualizada',
+          message: `La membresía fue ${accion}da correctamente`
+        });
+        fetchMembresias();
+      } else {
+        const result = await res.json();
+        showToast({
+          type: 'error',
+          title: 'Error',
+          message: result.error || 'No se pudo actualizar'
+        });
+      }
+    } catch (error) {
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Error de conexión'
+      });
+    } finally {
+      setActualizando(null);
+    }
+  };
+
+  const getDiasRestantes = (fechaVencimiento: string | null) => {
+    if (!fechaVencimiento) return null;
     try {
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);
       
-      const proximo = new Date(fechaProximoPago);
-      proximo.setHours(0, 0, 0, 0);
+      const vencimiento = new Date(fechaVencimiento);
+      vencimiento.setHours(0, 0, 0, 0);
       
-      const diff = Math.ceil((proximo.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+      const diff = Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
       return diff;
     } catch {
-      return 0;
+      return null;
     }
   };
 
-  const formatearFecha = (fecha: string) => {
+  const formatearFecha = (fecha: string | null) => {
+    if (!fecha) return 'Sin fecha';
     try {
       const d = new Date(fecha);
       return d.toLocaleDateString('es-AR', {
@@ -104,7 +140,8 @@ export default function MembresiasPage() {
       ) : (
         <div className={styles.clientesGrid}>
           {membresias.map((memb) => {
-            const diasRestantes = getDiasRestantes(memb.fechaProximoPago);
+            const diasRestantes = getDiasRestantes(memb.fechaVencimiento);
+            const isUpdating = actualizando === memb.id;
             
             return (
               <div key={memb.id} className={styles.clientCard}>
@@ -132,59 +169,94 @@ export default function MembresiasPage() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant="success">Activa</Badge>
+                  <Badge variant={memb.estado === 'ACTIVA' ? 'success' : 'warning'}>
+                    {memb.estado}
+                  </Badge>
                 </div>
 
                 <div className={styles.clientDetails}>
-                  <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Plan</span>
-                    <span className={styles.detailValue}>{memb.plan}</span>
-                  </div>
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabel}>Precio mensual</span>
                     <span className={styles.detailValue}>${memb.precio?.toLocaleString()}</span>
                   </div>
                   <div className={styles.detailItem}>
-                    <span className={styles.detailLabel}>Servicios usados</span>
-                    <span className={styles.detailValue}>{memb.serviciosUsados || 0} (ilimitados)</span>
+                    <span className={styles.detailLabel}>Fecha inicio</span>
+                    <span className={styles.detailValue}>{formatearFecha(memb.fechaInicio)}</span>
                   </div>
+                  {memb.ultimoPago && (
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Último pago</span>
+                      <span className={styles.detailValue}>{formatearFecha(memb.ultimoPago)}</span>
+                    </div>
+                  )}
                 </div>
 
-                <div style={{
-                  background: diasRestantes <= 7 ? '#fef3c7' : 'var(--bg-tertiary)',
-                  padding: 'var(--space-3)',
-                  borderRadius: 'var(--border-radius)',
-                  marginBottom: 'var(--space-3)'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
-                      Próximo pago
-                    </span>
-                    <span style={{
-                      fontWeight: 600,
-                      color: diasRestantes <= 7 ? '#d97706' : 'var(--text-primary)'
-                    }}>
-                      {formatearFecha(memb.fechaProximoPago)}
-                    </span>
+                {diasRestantes !== null && (
+                  <div style={{
+                    background: diasRestantes <= 7 ? '#fef3c7' : 'var(--bg-tertiary)',
+                    padding: 'var(--space-3)',
+                    borderRadius: 'var(--border-radius)',
+                    marginBottom: 'var(--space-3)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
+                        Vencimiento
+                      </span>
+                      <span style={{
+                        fontWeight: 600,
+                        color: diasRestantes <= 7 ? '#d97706' : 'var(--text-primary)'
+                      }}>
+                        {formatearFecha(memb.fechaVencimiento)}
+                      </span>
+                    </div>
+                    <div style={{ marginTop: 'var(--space-1)' }}>
+                      <span style={{
+                        fontSize: 'var(--font-size-xs)',
+                        fontWeight: 600,
+                        color: diasRestantes <= 3 ? '#dc2626' : diasRestantes <= 7 ? '#d97706' : 'var(--text-tertiary)'
+                      }}>
+                        {diasRestantes > 0 
+                          ? `Vence en ${diasRestantes} días` 
+                          : diasRestantes === 0 
+                            ? '¡Vence hoy!' 
+                            : '¡Vencida!'}
+                      </span>
+                    </div>
                   </div>
-                  <div style={{ marginTop: 'var(--space-1)' }}>
-                    <span style={{
-                      fontSize: 'var(--font-size-xs)',
-                      fontWeight: 600,
-                      color: diasRestantes <= 3 ? '#dc2626' : diasRestantes <= 7 ? '#d97706' : 'var(--text-tertiary)'
-                    }}>
-                      {diasRestantes > 0 
-                        ? `Vence en ${diasRestantes} días` 
-                        : diasRestantes === 0 
-                          ? '¡Vence hoy!' 
-                          : '¡Vencida!'}
-                    </span>
-                  </div>
-                </div>
+                )}
 
                 <div className={styles.clientActions}>
+                  {memb.estado === 'ACTIVA' && (
+                    <Button
+                      variant="ghost"
+                      size="small"
+                      loading={isUpdating}
+                      onClick={() => cambiarEstado(memb.id, 'suspender')}
+                    >
+                      ⏸️ Suspender
+                    </Button>
+                  )}
+                  {memb.estado === 'SUSPENDIDA' && (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      loading={isUpdating}
+                      onClick={() => cambiarEstado(memb.id, 'activar')}
+                    >
+                      ▶️ Activar
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    loading={isUpdating}
+                    onClick={() => cambiarEstado(memb.id, 'cancelar')}
+                    style={{ color: '#ef4444' }}
+                  >
+                    ❌ Cancelar
+                  </Button>
                   <a 
-                    href={`https://wa.me/${memb.cliente?.telefono?.replace(/\D/g, '')}?text=Hola%20${memb.cliente?.nombre},%20te%20escribimos%20de%20Chiacchio%20para%20recordarte%20que%20tu%20membresía%20está%20activa`}
+                    href={`https://wa.me/${memb.cliente?.telefono?.replace(/\D/g, '')}?text=Hola%20${memb.cliente?.nombre},%20te%20escribimos%20de%20Chiacchio`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -212,3 +284,4 @@ export default function MembresiasPage() {
     </>
   );
 }
+

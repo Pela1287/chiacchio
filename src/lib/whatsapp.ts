@@ -30,18 +30,13 @@ export async function sendWhatsAppMessage({
   tipo,
   referenciaId,
 }: SendMessageParams): Promise<WhatsAppResponse> {
-  // Si no hay token configurado, simular envío (modo desarrollo)
   if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_ID) {
-    console.log('[DEV] Simulando envío WhatsApp a:', to);
-    console.log('[DEV] Mensaje:', message.substring(0, 100) + '...');
-    
-    // Guardar notificación como enviada (mock)
     await prisma.notificacionWhatsApp.create({
       data: {
         tipo,
         destino: to,
         mensaje: message,
-        estado: 'ENVIADO',
+        estado: 'MOCK',
         referenciaId,
         enviadoAt: new Date(),
       },
@@ -51,7 +46,6 @@ export async function sendWhatsAppMessage({
   }
 
   try {
-    // Formatear número (sin el +)
     const formattedTo = to.replace(/\D/g, '');
     
     const response = await fetch(
@@ -77,7 +71,6 @@ export async function sendWhatsAppMessage({
     const data = await response.json();
 
     if (!response.ok) {
-      // Guardar error
       await prisma.notificacionWhatsApp.create({
         data: {
           tipo,
@@ -92,7 +85,6 @@ export async function sendWhatsAppMessage({
       return { success: false, error: data.error?.message || 'Error enviando mensaje' };
     }
 
-    // Guardar éxito
     await prisma.notificacionWhatsApp.create({
       data: {
         tipo,
@@ -107,6 +99,18 @@ export async function sendWhatsAppMessage({
     return { success: true, messageId: data.messages?.[0]?.id };
   } catch (error) {
     console.error('Error en WhatsApp:', error);
+    
+    await prisma.notificacionWhatsApp.create({
+      data: {
+        tipo,
+        destino: to,
+        mensaje: message,
+        estado: 'FALLIDO',
+        referenciaId,
+        error: error instanceof Error ? error.message : 'Error desconocido',
+      },
+    });
+
     return { success: false, error: 'Error de conexión' };
   }
 }
@@ -235,3 +239,15 @@ _El cliente solicitó hablar con un asesor humano._`;
     tipo: 'escalar',
   });
 }
+
+export async function procesarMensajeWhatsApp(params: {
+  to: string;
+  message: string;
+}): Promise<WhatsAppResponse> {
+  return sendWhatsAppMessage({
+    to: params.to,
+    message: params.message,
+    tipo: 'respuesta_bot',
+  });
+}
+

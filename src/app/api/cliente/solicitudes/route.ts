@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { tipoTrabajo, urgencia, direccion, ciudad, descripcion, telefono } = body;
+    const { servicioId, tipoTrabajo, urgencia, direccion, ciudad, descripcion, telefono } = body;
 
     const cliente = await prisma.cliente.findFirst({
       where: { usuarioId: session.user.id }
@@ -70,7 +70,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Cliente no encontrado' }, { status: 404 });
     }
 
-    // Verificar membresía activa (NO verifica servicios disponibles - es ILIMITADO)
     const membresia = await prisma.membresia.findFirst({
       where: { 
         clienteId: cliente.id,
@@ -85,7 +84,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Convertir prioridad a mayúsculas para el enum
     const prioridadMap: Record<string, string> = {
       'baja': 'BAJA',
       'media': 'MEDIA',
@@ -94,21 +92,23 @@ export async function POST(request: NextRequest) {
     };
     const prioridad = prioridadMap[urgencia?.toLowerCase()] || 'MEDIA';
 
-    // Crear solicitud (NO descuenta servicios - es ILIMITADO)
+    const servicioIdFinal = servicioId || 'serv-1';
+
     const solicitud = await prisma.solicitud.create({
       data: {
         clienteId: cliente.id,
-        servicioId: 'serv-1', // Mantenimiento eléctrico
+        servicioId: servicioIdFinal,
         direccion: direccion || cliente.direccion || 'Sin especificar',
         ciudad: ciudad || cliente.ciudad || 'Sin especificar',
-        descripcion: `[${tipoTrabajo || 'Servicio eléctrico'}] ${descripcion || ''}`,
+        descripcion: tipoTrabajo 
+          ? `[${tipoTrabajo}] ${descripcion || ''}` 
+          : descripcion || 'Servicio eléctrico',
         estado: 'PENDIENTE',
         prioridad: prioridad as any,
         fechaSolicitada: new Date(),
       }
     });
 
-    // Incrementar contador de servicios usados (solo estadística, NO límite)
     await prisma.membresia.update({
       where: { id: membresia.id },
       data: {

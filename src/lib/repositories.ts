@@ -76,6 +76,16 @@ export interface ILeadRepo {
   update(id: string, data: Partial<Lead>): Promise<Lead>;
 }
 
+export interface IPagoRepo {
+  findAll(): Promise<Pago[]>;
+  findById(id: string): Promise<Pago | null>;
+  findByClienteId(clienteId: string): Promise<Pago[]>;
+  findByMembresiaId(membresiaId: string): Promise<Pago[]>;
+  create(data: Omit<Pago, 'id' | 'createdAt'>): Promise<Pago>;
+  update(id: string, data: Partial<Pago>): Promise<Pago>;
+}
+
+
 // ===== IMPLEMENTACIONES MySQL =====
 
 // Usuario Repository
@@ -461,3 +471,66 @@ export const LeadRepo: ILeadRepo = {
     });
   }
 };
+
+export const PagoRepo: IPagoRepo = {
+  async findAll() {
+    const pagos = await prisma.pago.findMany({
+      orderBy: { fechaPago: 'desc' },
+      include: { cliente: true, membresia: true }
+    });
+    return pagos.map(p => ({ ...p, monto: Number(p.monto) }));
+  },
+
+  async findById(id) {
+    const p = await prisma.pago.findUnique({
+      where: { id },
+      include: { cliente: true, membresia: true }
+    });
+    if (!p) return null;
+    return { ...p, monto: Number(p.monto) };
+  },
+
+  async findByClienteId(clienteId) {
+    const pagos = await prisma.pago.findMany({
+      where: { clienteId },
+      orderBy: { fechaPago: 'desc' },
+      include: { membresia: true }
+    });
+    return pagos.map(p => ({ ...p, monto: Number(p.monto) }));
+  },
+
+  async findByMembresiaId(membresiaId) {
+    const pagos = await prisma.pago.findMany({
+      where: { membresiaId },
+      orderBy: { fechaPago: 'desc' }
+    });
+    return pagos.map(p => ({ ...p, monto: Number(p.monto) }));
+  },
+
+  async create(data) {
+    const p = await prisma.pago.create({
+      data: {
+        ...data,
+        monto: data.monto,
+        metodo: data.metodo as any,
+        estado: data.estado as any,
+      },
+      include: { cliente: true, membresia: true }
+    });
+    return { ...p, monto: Number(p.monto) };
+  },
+
+  async update(id, data) {
+    const p = await prisma.pago.update({
+      where: { id },
+      data: {
+        ...data,
+        monto: data.monto,
+        metodo: data.metodo as any,
+        estado: data.estado as any,
+      }
+    });
+    return { ...p, monto: Number(p.monto) };
+  }
+};
+

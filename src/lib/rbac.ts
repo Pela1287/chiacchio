@@ -77,49 +77,67 @@ const permisosPorRol: Record<UserRole, Permiso[]> = {
 };
 
 /**
+ * Normaliza el rol a lowercase
+ */
+function normalizeRole(rol: string | UserRole | null | undefined): UserRole | null {
+  if (!rol) return null;
+  const normalized = rol.toLowerCase();
+  if (normalized === 'super' || normalized === 'admin' || normalized === 'cliente') {
+    return normalized as UserRole;
+  }
+  return null;
+}
+
+/**
  * Verifica si un rol tiene un permiso específico
  */
-export function can(rol: UserRole | null, permiso: Permiso): boolean {
-  if (!rol) return false;
-  return permisosPorRol[rol]?.includes(permiso) ?? false;
+export function can(rol: UserRole | string | null | undefined, permiso: Permiso): boolean {
+  const normalizedRole = normalizeRole(rol as string);
+  if (!normalizedRole) return false;
+  return permisosPorRol[normalizedRole]?.includes(permiso) ?? false;
 }
 
 /**
  * Verifica si un rol tiene todos los permisos listados
  */
-export function canAll(rol: UserRole | null, permisos: Permiso[]): boolean {
-  if (!rol) return false;
-  return permisos.every(p => can(rol, p));
+export function canAll(rol: UserRole | string | null | undefined, permisos: Permiso[]): boolean {
+  const normalizedRole = normalizeRole(rol as string);
+  if (!normalizedRole) return false;
+  return permisos.every(p => can(normalizedRole, p));
 }
 
 /**
  * Verifica si un rol tiene al menos uno de los permisos listados
  */
-export function canAny(rol: UserRole | null, permisos: Permiso[]): boolean {
-  if (!rol) return false;
-  return permisos.some(p => can(rol, p));
+export function canAny(rol: UserRole | string | null | undefined, permisos: Permiso[]): boolean {
+  const normalizedRole = normalizeRole(rol as string);
+  if (!normalizedRole) return false;
+  return permisos.some(p => can(normalizedRole, p));
 }
 
 /**
  * Obtiene todos los permisos de un rol
  */
-export function getPermisos(rol: UserRole): Permiso[] {
-  return permisosPorRol[rol] ?? [];
+export function getPermisos(rol: UserRole | string | null | undefined): Permiso[] {
+  const normalizedRole = normalizeRole(rol as string);
+  if (!normalizedRole) return [];
+  return permisosPorRol[normalizedRole] ?? [];
 }
 
 /**
  * Verifica si el usuario puede acceder a una ruta de panel
  */
-export function canAccessPanel(rol: UserRole | null, panel: 'super' | 'admin' | 'cliente'): boolean {
-  if (!rol) return false;
+export function canAccessPanel(rol: UserRole | string | null | undefined, panel: 'super' | 'admin' | 'cliente'): boolean {
+  const normalizedRole = normalizeRole(rol as string);
+  if (!normalizedRole) return false;
   
   switch (panel) {
     case 'super':
-      return rol === 'super';
+      return normalizedRole === 'super';
     case 'admin':
-      return rol === 'super' || rol === 'admin';
+      return normalizedRole === 'super' || normalizedRole === 'admin';
     case 'cliente':
-      return true; // Todos los roles autenticados pueden ver el panel cliente
+      return true;
     default:
       return false;
   }
@@ -128,8 +146,9 @@ export function canAccessPanel(rol: UserRole | null, panel: 'super' | 'admin' | 
 /**
  * Obtiene la ruta del panel según el rol
  */
-export function getPanelRoute(rol: UserRole): string {
-  switch (rol) {
+export function getPanelRoute(rol: UserRole | string | null | undefined): string {
+  const normalizedRole = normalizeRole(rol as string);
+  switch (normalizedRole) {
     case 'super':
       return '/panel/super';
     case 'admin':
@@ -143,8 +162,9 @@ export function getPanelRoute(rol: UserRole): string {
 /**
  * Obtiene el nombre legible del rol
  */
-export function getRolNombre(rol: UserRole): string {
-  switch (rol) {
+export function getRolNombre(rol: UserRole | string | null | undefined): string {
+  const normalizedRole = normalizeRole(rol as string);
+  switch (normalizedRole) {
     case 'super':
       return 'Super Usuario';
     case 'admin':
@@ -159,8 +179,9 @@ export function getRolNombre(rol: UserRole): string {
 /**
  * Obtiene el color del badge según el rol
  */
-export function getRolColor(rol: UserRole): string {
-  switch (rol) {
+export function getRolColor(rol: UserRole | string | null | undefined): string {
+  const normalizedRole = normalizeRole(rol as string);
+  switch (normalizedRole) {
     case 'super':
       return 'var(--color-error)';
     case 'admin':

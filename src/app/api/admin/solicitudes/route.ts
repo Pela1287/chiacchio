@@ -1,28 +1,17 @@
-// ============================================
-// CHIACCHIO - API Admin Solicitudes
-// ============================================
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { can } from '@/lib/rbac';
+import { UnauthorizedError, ValidationError, handleApiError } from '@/lib/errors';
+import { validarEstadoSolicitud } from '@/lib/validators';
 
-// GET - Listar todas las solicitudes
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
-    // Verificar que es admin o super
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    });
-
-    if (!user || (user.rol !== 'ADMIN' && user.rol !== 'SUPER')) {
-      return NextResponse.json({ error: 'Sin permisos' }, { status: 403 });
+    if (!session?.user?.id || !can(session.user.role, 'solicitudes:ver')) {
+      throw new UnauthorizedError();
     }
 
     const solicitudes = await prisma.solicitud.findMany({
@@ -62,34 +51,32 @@ export async function GET(request: NextRequest) {
     })));
 
   } catch (error) {
-    console.error('Error obteniendo solicitudes:', error);
+    const apiError = handleApiError(error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
+      { error: apiError.error, code: apiError.code },
+      { status: apiError.statusCode }
     );
   }
 }
 
-// PATCH - Actualizar estado de solicitud
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
-    // Verificar que es admin o super
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    });
-
-    if (!user || (user.rol !== 'ADMIN' && user.rol !== 'SUPER')) {
-      return NextResponse.json({ error: 'Sin permisos' }, { status: 403 });
+    if (!session?.user?.id || !can(session.user.role, 'solicitudes:editar')) {
+      throw new UnauthorizedError();
     }
 
     const body = await request.json();
     const { id, estado, fechaProgramada, notas } = body;
+
+    if (!id) {
+      throw new ValidationError('El ID de solicitud es requerido');
+    }
+
+    if (estado && !validarEstadoSolicitud(estado)) {
+      throw new ValidationError('Estado inválido');
+    }
 
     const solicitud = await prisma.solicitud.update({
       where: { id },
@@ -109,10 +96,11 @@ export async function PATCH(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error actualizando solicitud:', error);
+    const apiError = handleApiError(error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
+      { error: apiError.error, code: apiError.code },
+      { status: apiError.statusCode }
     );
   }
 }
+

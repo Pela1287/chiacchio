@@ -1,23 +1,24 @@
-// ============================================
-// CHIACCHIO - API Admin Membresías
-// ============================================
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { can } from '@/lib/rbac';
+import { ValidationError, UnauthorizedError, handleApiError } from '@/lib/errors';
+import { crearMembresia, suspenderMembresia, cancelarMembresia } from '@/lib/services/membership';
 
-// GET - Listar membresías activas
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session?.user?.id || !can(session.user.role, 'membresias:ver')) {
+      throw new UnauthorizedError();
     }
 
+    const { searchParams } = new URL(request.url);
+    const estadoParam = searchParams.get('estado');
+
     const membresias = await prisma.membresia.findMany({
-      where: { estado: 'ACTIVA' },
+      where: estadoParam ? { estado: estadoParam as any } : undefined,
       include: {
         cliente: {
           select: {
@@ -33,97 +34,103 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(membresias.map(m => ({
       id: m.id,
-      plan: m.plan,
       precio: m.precio.toNumber(),
       estado: m.estado,
       fechaInicio: m.fechaInicio,
-      fechaProximoPago: m.fechaProximoPago,
-      serviciosUsados: m.serviciosUsados,
+      fechaVencimiento: m.fechaProximoPago,
+      ultimoPago: null,
       cliente: m.cliente,
     })));
 
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json([]);
+    const apiError = handleApiError(error);
+    return NextResponse.json(
+      { error: apiError.error, code: apiError.code },
+      { status: apiError.statusCode }
+    );
   }
 }
 
-// POST - Crear membresía para un cliente
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
-    // Verificar que es admin o super
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    });
-
-    if (!user || (user.rol !== 'ADMIN' && user.rol !== 'SUPER')) {
-      return NextResponse.json({ error: 'Sin permisos' }, { status: 403 });
+    if (!session?.user?.id || !can(session.user.role, 'membresias:crear')) {
+      throw new UnauthorizedError();
     }
 
     const body = await request.json();
-    const { clienteId } = body;
+    const { clienteId, precio, pagoId } = body;
 
     if (!clienteId) {
-      return NextResponse.json({ error: 'clienteId es requerido' }, { status: 400 });
+      throw new ValidationError('clienteId es requerido');
     }
 
-    // Verificar si ya tiene membresía activa
-    const membresiaExistente = await prisma.membresia.findFirst({
-      where: { 
-        clienteId: clienteId,
-        estado: 'ACTIVA'
-      }
-    });
+    const precioFinal = precio || 9900;
 
-    if (membresiaExistente) {
-      return NextResponse.json({ 
-        error: 'El cliente ya tiene una membresía activa',
-        membresia: membresiaExistente
-      }, { status: 400 });
-    }
-
-    // Crear membresía nueva
-    const hoy = new Date();
-    const proximoPago = new Date(hoy);
-    proximoPago.setMonth(proximoPago.getMonth() + 1);
-
-    const membresia = await prisma.membresia.create({
-      data: {
-        clienteId: clienteId,
-        plan: 'ESTANDAR',
-        precio: 9900,
-        estado: 'ACTIVA',
-        fechaInicio: hoy,
-        fechaProximoPago: proximoPago,
-        serviciosDisponibles: 999, // ILIMITADO
-        serviciosUsados: 0,
-      }
-    });
+    const membresia = await crearMembresia(clienteId, precioFinal, pagoId);
 
     return NextResponse.json({
       success: true,
       message: 'Membresía creada correctamente',
-      membresia: {
-        id: membresia.id,
-        plan: membresia.plan,
-        precio: membresia.precio.toNumber(),
-        estado: membresia.estado,
-        fechaInicio: membresia.fechaInicio,
-        fechaProximoPago: membresia.fechaProximoPago,
-      }
-    });
+      membresia
+    }, { status: 201 });
 
   } catch (error) {
-    console.error('Error creando membresía:', error);
+    const apiError = handleApiError(error);
     return NextResponse.json(
-      { error: 'Error interno del servidor: ' + (error as Error).message },
-      { status: 500 }
+      { error: apiError.error, code: apiError.code },
+      { status: apiError.statusCode }
     );
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id || !can(session.user.role, 'membresias:editar')) {
+      throw new UnauthorizedError();
+    }
+
+    const body = await request.json();
+    const { membresiaId, accion } = body;
+
+    if (!membresiaId || !accion) {
+      throw new ValidationError('membresiaId y accion son requeridos');
+    }
+
+    let result;
+
+    switch (accion) {
+      case 'suspender':
+        result = await suspenderMembresia(membresiaId);
+        break;
+      case 'cancelar':
+        result = await cancelarMembresia(membresiaId);
+        break;
+      case 'activar':
+        result = await prisma.membresia.update({
+          where: { id: membresiaId },
+          data: { estado: 'ACTIVA' }
+        });
+        break;
+      default:
+        throw new ValidationError('Acción inválida. Opciones: suspender, cancelar, activar');
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Membresía ${accion}da correctamente`,
+      membresia: result
+    });
+
+  } catch (error) {
+    const apiError = handleApiError(error);
+    return NextResponse.json(
+      { error: apiError.error, code: apiError.code },
+      { status: apiError.statusCode }
+    );
+  }
+}
+
