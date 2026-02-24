@@ -191,3 +191,41 @@ export function getRolColor(rol: UserRole | string | null | undefined): string {
       return 'var(--color-primary)';
   }
 }
+// Jerarquía numérica: mayor número = mayor acceso
+const ROLE_HIERARCHY: Record<string, number> = {
+  cliente: 1,
+  admin: 2,
+  super: 3,
+};
+
+/**
+ * Verifica si `userRole` tiene al menos el nivel de `requiredRole`.
+ * SUPER puede hacer todo lo que hace ADMIN y CLIENTE.
+ * ADMIN puede hacer todo lo que hace CLIENTE.
+ *
+ * Uso: hasRole(session.user.role, 'admin') → true para super y admin
+ */
+export function hasRole(
+  userRole: UserRole | string | null | undefined,
+  requiredRole: UserRole | string
+): boolean {
+  const normalized = normalizeRole(userRole as string);
+  if (!normalized) return false;
+  return (ROLE_HIERARCHY[normalized] ?? 0) >= (ROLE_HIERARCHY[requiredRole] ?? 99);
+}
+
+/**
+ * Helper para proteger páginas Server Component.
+ * Redirige automáticamente si el usuario no tiene el rol mínimo.
+ */
+export function requireRole(
+  session: { user?: { role?: string; rol?: string } } | null | undefined,
+  requiredRole: UserRole | string
+): void {
+  const userRole = (session?.user as any)?.role || (session?.user as any)?.rol;
+  if (!hasRole(userRole, requiredRole)) {
+    const { redirect } = require('next/navigation');
+    const fallback = hasRole(userRole, 'cliente') ? '/panel/cliente' : '/auth/login';
+    redirect(fallback);
+  }
+}

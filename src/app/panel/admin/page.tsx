@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { Badge, Button, LoadingOverlay, useToast } from '@/components/ui';
 import { tiempoTranscurrido } from '@/lib/helpers';
 import styles from './page.module.css';
+import { hasAccess } from "@/lib/roles";
 
 interface Solicitud {
   id: string;
@@ -40,6 +41,21 @@ export default function AdminDashboard() {
   const [clientes, setClientes] = useState<any[]>([]);
   const [membresias, setMembresias] = useState<any[]>([]);
   const [actualizando, setActualizando] = useState<string | null>(null);
+ 
+ 
+
+  useEffect(() => {
+
+    if (status === "loading") return;
+
+    const role = (session?.user as any)?.role;
+
+    if (!hasAccess(role, "ADMIN")) {
+      router.replace("/panel/cliente");
+    }
+
+  }, [session, status, router]);
+
 
   useEffect(() => {
     if (session?.user) {

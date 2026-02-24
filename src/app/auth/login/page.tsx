@@ -2,41 +2,54 @@
 // CHIACCHIO - Login
 // ============================================
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button, Input } from '@/components/ui';
-import styles from './page.module.css';
+import { useState } from "react";
+import { signIn, getSession } from "next-auth/react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button, Input } from "@/components/ui";
+import styles from "./page.module.css";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email,
         password,
-        redirect: true,
-        callbackUrl: '/panel',
+        redirect: false,
       });
 
-      // Si llega aquí con error
       if (result?.error) {
-        setError('Credenciales incorrectas. Verifica tu email y contraseña.');
+        setError("Credenciales incorrectas. Verifica tu email y contraseña.");
         setLoading(false);
+        return;
       }
+
+      // 🔥 Fuerza a traer la sesión ya seteada por NextAuth
+      const session = await getSession();
+      const role = (session?.user as any)?.role;
+
+      if (role === "SUPER") router.replace("/panel/super");
+      else if (role === "ADMIN") router.replace("/panel/admin");
+      else if (role === "CLIENTE") router.replace("/panel/cliente");
+      else router.replace("/panel"); // fallback
+
+      // Nota: no setLoading(false) porque nos vamos de pantalla
     } catch (err) {
-      setError('Error al iniciar sesión. Intenta nuevamente.');
+      setError("Error al iniciar sesión. Intenta nuevamente.");
       setLoading(false);
     }
   };
@@ -80,9 +93,7 @@ export default function LoginPage() {
             placeholder="••••••••"
           />
 
-          {error && (
-            <p className={styles.error}>{error}</p>
-          )}
+          {error && <p className={styles.error}>{error}</p>}
 
           <Button
             type="submit"
@@ -102,21 +113,27 @@ export default function LoginPage() {
         <div className={styles.testAccounts}>
           <div className={styles.testAccount}>
             <span className={styles.testRole}>Super Usuario</span>
-            <span className={styles.testCreds}>super@chiacchio.com / admin123</span>
+            <span className={styles.testCreds}>
+              super@chiacchio.com / admin123
+            </span>
           </div>
           <div className={styles.testAccount}>
             <span className={styles.testRole}>Administrador</span>
-            <span className={styles.testCreds}>admin@chiacchio.com / admin123</span>
+            <span className={styles.testCreds}>
+              admin@chiacchio.com / admin123
+            </span>
           </div>
           <div className={styles.testAccount}>
             <span className={styles.testRole}>Cliente</span>
-            <span className={styles.testCreds}>juan.perez@email.com / cliente123</span>
+            <span className={styles.testCreds}>
+              juan.perez@email.com / cliente123
+            </span>
           </div>
         </div>
 
         <div className={styles.footer}>
           <p className={styles.footerText}>
-            ¿No tienes cuenta?{' '}
+            ¿No tienes cuenta?{" "}
             <Link href="/auth/registro" className={styles.footerLink}>
               Registrarse
             </Link>

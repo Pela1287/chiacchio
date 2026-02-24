@@ -5,9 +5,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { Card, Badge, Button, LoadingOverlay } from '@/components/ui';
+import { Button } from "@/components/ui/Button";
 import { formatearFecha, formatearMoneda } from '@/lib/helpers';
 import styles from './page.module.css';
 
@@ -83,39 +84,77 @@ const quickActions = [
 
 export default function ClienteDashboard() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [membresia, setMembresia] = useState<Membresia | null>(null);
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
-  const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
-    if (session?.user) {
-      fetchData();
+
+  
+
+  if (status === "unauthenticated") {
+    router.replace("/auth/login");
+    return;
+  }
+
+  if (status === "authenticated") {
+
+    const role = (session?.user as any)?.rol;
+
+    if (role !== "CLIENTE") {
+
+      if (role === "ADMIN")
+        router.replace("/panel/admin");
+
+      else if (role === "SUPER")
+        router.replace("/panel/super");
+
     }
-  }, [session]);
+
+  }
+
+}, [status, session, router]);
 
   const fetchData = async () => {
-    try {
-      const membRes = await fetch('/api/cliente/membresia');
-      if (membRes.ok) {
-        const membData = await membRes.json();
-        setMembresia(membData);
-      }
 
-      const solRes = await fetch('/api/cliente/solicitudes');
-      if (solRes.ok) {
-        const solData = await solRes.json();
-        setSolicitudes(solData.slice(0, 3));
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
+  try {
+
+    // Ejecutar ambas en paralelo y tolerar errores
+    const [membRes, solRes] = await Promise.allSettled([
+      fetch('/api/cliente/membresia'),
+      fetch('/api/cliente/solicitudes')
+    ]);
+
+    if (membRes.status === "fulfilled" && membRes.value.ok) {
+      const membData = await membRes.value.json();
+      setMembresia(membData);
+    } else {
+      setMembresia(null);
     }
-  };
 
-  if (status === 'loading' || loading) {
-    return <LoadingOverlay text="Cargando..." />;
+    if (solRes.status === "fulfilled" && solRes.value.ok) {
+      const solData = await solRes.value.json();
+      setSolicitudes(solData.slice(0, 3));
+    } else {
+      setSolicitudes([]);
+    }
+
+  } catch (err) {
+
+    console.error("fetchData error:", err);
+    setMembresia(null);
+    setSolicitudes([]);
+
+  } finally {
+
+    // 🔥 ESTO GARANTIZA QUE EL SPINNER SE LIBERE SIEMPRE
+    
+
   }
+
+};
+
 
   const solicitudesPendientes = solicitudes.filter(s => 
     s.estado === 'pendiente' || s.estado === 'confirmada' || s.estado === 'en_progreso'

@@ -23,7 +23,7 @@ export default function PanelPage() {
       router.push('/auth/login');
     } else if (mounted && status === 'authenticated' && session?.user) {
       // Redirigir según el rol
-      const role = (session.user as any).role;
+      const role = (session.user as any)?.role || (session.user as any)?.rol;
       if (role === 'SUPER') {
         router.push('/panel/super');
       } else if (role === 'ADMIN') {
