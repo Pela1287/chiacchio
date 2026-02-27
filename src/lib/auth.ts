@@ -15,22 +15,50 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Credenciales incompletas");
+        }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
+          select: {
+            id: true,
+            email: true,
+            password: true,
+            nombre: true,
+            apellido: true,
+            rol: true,
+            emailVerified: true,
+            sucursalId: true,
+          }
         });
 
-        if (!user || !user.password) return null;
+        if (!user) {
+          throw new Error("Usuario no encontrado");
+        }
 
-        const isPasswordValid = await compare(credentials.password, user.password);
-        if (!isPasswordValid) return null;
+        if (!user.password) {
+          throw new Error("Usuario sin contraseña");
+        }
+
+        const passwordValid = await compare(credentials.password, user.password);
+
+        if (!passwordValid) {
+          throw new Error("Contraseña incorrecta");
+        }
+
+        // BLOQUEO DEFINITIVO
+        if (user.emailVerified === null) {
+          throw new Error("Debes verificar tu email antes de iniciar sesión");
+        }
 
         return {
           id: user.id,
           email: user.email,
           name: `${user.nombre} ${user.apellido}`,
           role: user.rol,
+          sucursalId: user.sucursalId ?? null,
         };
       },
     }),
@@ -43,9 +71,10 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = (user as any).id;
         token.role = (user as any).role || (user as any).rol;
-        token.email = user.email;
+        token.email = (user as any).email;
+        (token as any).sucursalId = (user as any).sucursalId ?? null;
       }
       return token;
     },
@@ -53,8 +82,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
+        (session.user as any).sucursalId = (token as any).sucursalId ?? null;
       }
       return session;
     },
@@ -78,6 +107,7 @@ declare module 'next-auth' {
       email: string;
       name?: string;
       role?: string;
+      sucursalId?: string | null;
     };
   }
 }
@@ -86,5 +116,6 @@ declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     role: string;
+    sucursalId?: string | null;
   }
 }

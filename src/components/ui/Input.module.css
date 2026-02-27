@@ -10,9 +10,9 @@
 }
 
 .label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
+  font-size: 12px;
+
+  margin-bottom: 4px;
 }
 
 .required {
@@ -27,17 +27,16 @@
 }
 
 .input {
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  font-family: var(--font-family-sans);
-  font-size: var(--font-size-base);
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  transition: all var(--transition-fast);
-}
 
+  padding: 6px 8px;
+
+  font-size: 13px;
+
+  border-radius: 6px;
+
+  border: 1px solid #e2e8f0;
+
+}
 .input::placeholder {
   color: var(--text-tertiary);
 }

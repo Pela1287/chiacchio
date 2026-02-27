@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "nombre": "Admin",
+    "apellido": "LaPlata",
+    "email": "adminlp@tu-dominio.com",
+    "telefono": "221...",
+    "password": "ClaveSegura123",
+    "sucursalCodigo": "001"
+
   },
   "scripts": {
     "dev": "next dev",
@@ -28,6 +35,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
+    "recharts": "^3.7.0",
+    "resend": "^6.9.2",
     "uuid": "^9.0.1",
     "z-ai-web-dev-sdk": "^0.0.16",
     "zod": "^3.22.4",
@@ -44,4 +53,5 @@
     "tsx": "^4.7.0",
     "typescript": "^5"
   }
+  
 }
