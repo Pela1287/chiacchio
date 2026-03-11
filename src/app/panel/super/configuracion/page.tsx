@@ -93,7 +93,7 @@ export default function ConfiguracionPage() {
             max="100"
             value={valor}
             onChange={(e) => setEditando({ ...editando, [config.clave]: e.target.value })}
-            className={cambio ? styles.cambiado : ''}
+            className={`${styles.configInput} ${cambio ? styles.cambiado : ''}`}
           />
           <span className={styles.unidad}>%</span>
         </div>
@@ -110,7 +110,7 @@ export default function ConfiguracionPage() {
             max="100000"
             value={valor}
             onChange={(e) => setEditando({ ...editando, [config.clave]: e.target.value })}
-            className={cambio ? styles.cambiado : ''}
+            className={`${styles.configInput} ${cambio ? styles.cambiado : ''}`}
           />
         </div>
       );
@@ -122,7 +122,7 @@ export default function ConfiguracionPage() {
           type="tel"
           value={valor}
           onChange={(e) => setEditando({ ...editando, [config.clave]: e.target.value })}
-          className={cambio ? styles.cambiado : ''}
+          className={`${styles.configInput} ${cambio ? styles.cambiado : ''}`}
           placeholder="+5492216011455"
         />
       );
@@ -133,7 +133,7 @@ export default function ConfiguracionPage() {
         type="text"
         value={valor}
         onChange={(e) => setEditando({ ...editando, [config.clave]: e.target.value })}
-        className={cambio ? styles.cambiado : ''}
+        className={`${styles.configInput} ${cambio ? styles.cambiado : ''}`}
       />
     );
   };

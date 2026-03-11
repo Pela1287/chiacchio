@@ -1,82 +1,45 @@
-// ============================================
-// CHIACCHIO - API Técnicos (Público)
-// ============================================
-
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-// GET - Listar técnicos (PÚBLICO - sin auth)
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const all = searchParams.get('all') === 'true';
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-    // Si es público, solo mostrar activos
-    const where = all ? {} : { activo: true };
+  const all = request.nextUrl.searchParams.get('all') === 'true';
+  const tecnicos = await prisma.tecnico.findMany({
+    where: all ? undefined : { activo: true },
+    include: {
+      solicitudes: {
+        where: { estado: { in: ['PENDIENTE', 'CONFIRMADA', 'EN_PROGRESO'] } },
+        select: { id: true },
+      },
+    },
+    orderBy: [{ activo: 'desc' }, { apellido: 'asc' }],
+  });
 
-    const tecnicos = await prisma.tecnico.findMany({
-      where,
-      orderBy: { nombre: 'asc' },
-    });
-
-    return NextResponse.json(tecnicos.map(t => ({
-      id: t.id,
-      nombre: t.nombre,
-      apellido: t.apellido,
-      especialidad: t.especialidad || 'Electricista',
-      telefono: t.telefono || '',
-      avatar: t.avatar,
-      activo: t.activo,
-    })));
-
-  } catch (error) {
-    console.error('Error obteniendo técnicos:', error);
-    return NextResponse.json([]);
-  }
+  return NextResponse.json(tecnicos.map((t) => ({
+    ...t,
+    trabajosActivos: t.solicitudes.length,
+    solicitudes: undefined,
+  })));
 }
 
-// POST - Crear técnico (sin auth por ahora)
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { nombre, apellido, especialidad, telefono, avatar } = body;
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-    if (!nombre || !apellido) {
-      return NextResponse.json({ 
-        error: 'Nombre y apellido son obligatorios' 
-      }, { status: 400 });
-    }
+  const body = await request.json();
+  const { nombre, apellido, email, dni, especialidad, telefono, avatar, antecedentes, observaciones } = body;
 
-    const tecnico = await prisma.tecnico.create({
-      data: {
-        nombre,
-        apellido,
-        especialidad: especialidad || null,
-        telefono: telefono || null,
-        avatar: avatar || null,
-        activo: true,
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      id: tecnico.id,
-      tecnico: {
-        id: tecnico.id,
-        nombre: tecnico.nombre,
-        apellido: tecnico.apellido,
-        especialidad: tecnico.especialidad,
-        telefono: tecnico.telefono,
-        avatar: tecnico.avatar,
-        activo: tecnico.activo,
-      },
-    });
-
-  } catch (error) {
-    console.error('Error creando técnico:', error);
-    return NextResponse.json(
-      { error: 'Error al crear técnico' },
-      { status: 500 }
-    );
+  if (!nombre?.trim() || !apellido?.trim()) {
+    return NextResponse.json({ error: 'Nombre y apellido son requeridos' }, { status: 400 });
   }
+
+  const tecnico = await prisma.tecnico.create({
+    data: { nombre, apellido, email, dni, especialidad, telefono, avatar, antecedentes, observaciones },
+  });
+
+  return NextResponse.json(tecnico, { status: 201 });
 }

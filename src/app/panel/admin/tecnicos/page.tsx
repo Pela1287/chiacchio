@@ -1,371 +1,370 @@
-/* ============================================
-   CHIACCHIO - Gestión de Técnicos (Admin)
-   ============================================ */
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { Button, Input, Card, useToast, LoadingOverlay } from '@/components/ui';
 import styles from './page.module.css';
 
 interface Tecnico {
   id: string;
   nombre: string;
   apellido: string;
+  email: string;
+  dni: string;
   especialidad: string;
   telefono: string;
   avatar?: string;
+  antecedentes: string;
+  observaciones: string;
   activo: boolean;
+  trabajosActivos: number;
 }
 
-export default function AdminTecnicosPage() {
-  const { data: session, status } = useSession();
-  const { showToast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const ESPECIALIDADES = [
+  'Instalaciones eléctricas', 'Mantenimiento industrial', 'Automatización',
+  'Tableros eléctricos', 'Instalaciones domiciliarias', 'Iluminación LED',
+  'Energías renovables', 'General',
+];
 
-  const [loading, setLoading] = useState(true);
+const EMPTY: Omit<Tecnico, 'id' | 'activo' | 'trabajosActivos'> = {
+  nombre: '', apellido: '', email: '', dni: '', especialidad: '',
+  telefono: '', avatar: '', antecedentes: '', observaciones: '',
+};
+
+export default function TecnicosPage() {
+  const { data: session } = useSession();
+  const fileRef = useRef<HTMLInputElement>(null);
+
   const [tecnicos, setTecnicos] = useState<Tecnico[]>([]);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState<'crear' | 'editar' | 'ver' | null>(null);
+  const [selected, setSelected] = useState<Tecnico | null>(null);
+  const [form, setForm] = useState({ ...EMPTY });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [filtro, setFiltro] = useState<'todos' | 'activos' | 'inactivos'>('activos');
+  const [search, setSearch] = useState('');
 
-  const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    especialidad: '',
-    telefono: '',
-    avatar: '',
+  useEffect(() => { load(); }, []);
+
+  async function load() {
+    setLoading(true);
+    const res = await fetch('/api/tecnicos?all=true');
+    if (res.ok) setTecnicos(await res.json());
+    setLoading(false);
+  }
+
+  const displayed = tecnicos.filter((t) => {
+    const matchFiltro = filtro === 'todos' || (filtro === 'activos' ? t.activo : !t.activo);
+    const texto = `${t.nombre} ${t.apellido} ${t.especialidad} ${t.dni}`.toLowerCase();
+    return matchFiltro && (!search || texto.includes(search.toLowerCase()));
   });
 
-  useEffect(() => {
-    fetchTecnicos();
-  }, []);
+  function openCrear() {
+    setForm({ ...EMPTY });
+    setError('');
+    setModal('crear');
+  }
 
-  const fetchTecnicos = async () => {
-    try {
-      // Traer todos (incluye inactivos para admin)
-      const res = await fetch('/api/tecnicos?all=true');
-      if (res.ok) {
-        const data = await res.json();
-        setTecnicos(data);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  function openEditar(t: Tecnico) {
+    setSelected(t);
+    setForm({
+      nombre: t.nombre, apellido: t.apellido, email: t.email || '',
+      dni: t.dni || '', especialidad: t.especialidad || '',
+      telefono: t.telefono || '', avatar: t.avatar || '',
+      antecedentes: t.antecedentes || '', observaciones: t.observaciones || '',
+    });
+    setError('');
+    setModal('editar');
+  }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
+  function openVer(t: Tecnico) {
+    setSelected(t);
+    setModal('ver');
+  }
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  function closeModal() { setModal(null); setSelected(null); setError(''); }
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { setError('La imagen no puede superar 3MB'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => setForm((f) => ({ ...f, avatar: ev.target?.result as string }));
+    reader.readAsDataURL(file);
+  }
 
-    if (file.size > 2 * 1024 * 1024) {
-      showToast({
-        type: 'error',
-        title: 'Archivo muy grande',
-        message: 'Máximo 2MB'
-      });
+  async function handleSave() {
+    if (!form.nombre.trim() || !form.apellido.trim()) {
+      setError('Nombre y apellido son obligatorios');
       return;
     }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      setAvatarPreview(base64);
-      setFormData(prev => ({ ...prev, avatar: base64 }));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      nombre: '',
-      apellido: '',
-      especialidad: '',
-      telefono: '',
-      avatar: '',
-    });
-    setAvatarPreview(null);
-    setEditingId(null);
-    setMostrarFormulario(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+    setSaving(true);
+    setError('');
     try {
-      let res;
-      if (editingId) {
-        res = await fetch(`/api/tecnicos/${editingId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-      } else {
-        res = await fetch('/api/tecnicos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-      }
-
-      if (res.ok) {
-        showToast({
-          type: 'success',
-          title: editingId ? 'Técnico actualizado' : 'Técnico agregado',
-          message: 'Guardado correctamente'
-        });
-        resetForm();
-        fetchTecnicos();
-      } else {
-        const error = await res.json();
-        showToast({
-          type: 'error',
-          title: 'Error',
-          message: error.error || 'Error al guardar'
-        });
-      }
-    } catch (error) {
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message: 'Error de conexión'
-      });
-    }
-  };
-
-  const handleEdit = (tecnico: Tecnico) => {
-    setFormData({
-      nombre: tecnico.nombre,
-      apellido: tecnico.apellido,
-      especialidad: tecnico.especialidad || '',
-      telefono: tecnico.telefono || '',
-      avatar: tecnico.avatar || '',
-    });
-    setAvatarPreview(tecnico.avatar || null);
-    setEditingId(tecnico.id);
-    setMostrarFormulario(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este técnico?')) return;
-
-    try {
-      const res = await fetch(`/api/tecnicos/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        showToast({
-          type: 'success',
-          title: 'Eliminado',
-          message: 'Técnico eliminado'
-        });
-        fetchTecnicos();
-      }
-    } catch (error) {
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message: 'No se pudo eliminar'
-      });
-    }
-  };
-
-  const handleToggleActivo = async (id: string, activo: boolean) => {
-    try {
-      const res = await fetch(`/api/tecnicos/${id}`, {
-        method: 'PATCH',
+      const isEdit = modal === 'editar';
+      const url = isEdit ? `/api/tecnicos/${selected!.id}` : '/api/tecnicos';
+      const res = await fetch(url, {
+        method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activo: !activo }),
+        body: JSON.stringify(form),
       });
-
-      if (res.ok) {
-        fetchTecnicos();
-      }
-    } catch (error) {
-      console.error('Error:', error);
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Error al guardar'); return; }
+      closeModal();
+      load();
+    } finally {
+      setSaving(false);
     }
-  };
-
-  if (loading) {
-    return <LoadingOverlay text="Cargando..." />;
   }
+
+  async function toggleActivo(t: Tecnico) {
+    await fetch(`/api/tecnicos/${t.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ activo: !t.activo }),
+    });
+    load();
+  }
+
+  async function eliminar(t: Tecnico) {
+    if (!confirm(`¿Eliminar a ${t.nombre} ${t.apellido}? Esta acción no se puede deshacer.`)) return;
+    await fetch(`/api/tecnicos/${t.id}`, { method: 'DELETE' });
+    load();
+  }
+
+  const activos = tecnicos.filter((t) => t.activo).length;
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <Link href="/panel/admin" className={styles.backLink}>
-          ← Volver
-        </Link>
-        <h1 className={styles.title}>👷 Gestión de Técnicos</h1>
-        <p className={styles.subtitle}>Agregá y gestioná los electricistas del equipo</p>
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.title}>Electricistas</h1>
+          <p className={styles.subtitle}>{tecnicos.length} registrados · {activos} activos</p>
+        </div>
+        <button className={styles.btnPrimary} onClick={openCrear}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Nuevo electricista
+        </button>
       </div>
 
-      {!mostrarFormulario && (
-        <Button
-          variant="primary"
-          onClick={() => setMostrarFormulario(true)}
-          style={{ marginBottom: 'var(--space-6)' }}
-        >
-          ➕ Agregar Técnico
-        </Button>
+      <div className={styles.toolbar}>
+        <div className={styles.searchWrap}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.searchIcon}>
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            className={styles.search}
+            placeholder="Buscar por nombre, DNI o especialidad..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className={styles.filtros}>
+          {(['activos', 'todos', 'inactivos'] as const).map((f) => (
+            <button
+              key={f}
+              className={`${styles.filtroBtn} ${filtro === f ? styles.filtroActivo : ''}`}
+              onClick={() => setFiltro(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className={styles.loadingWrap}><div className={styles.spinner} /></div>
+      ) : (
+        <div className={styles.grid}>
+          {displayed.length === 0 ? (
+            <div className={styles.empty}>No se encontraron electricistas</div>
+          ) : displayed.map((t) => (
+            <div key={t.id} className={`${styles.card} ${!t.activo ? styles.cardInactivo : ''}`}>
+              <div className={styles.cardTop}>
+                <div className={styles.avatarWrap}>
+                  {t.avatar ? (
+                    <img src={t.avatar} alt={t.nombre} className={styles.avatarImg} />
+                  ) : (
+                    <div className={styles.avatarPlaceholder}>
+                      {t.nombre[0]}{t.apellido[0]}
+                    </div>
+                  )}
+                  <span className={`${styles.statusDot} ${t.activo ? styles.dotActivo : styles.dotInactivo}`} />
+                </div>
+                <div className={styles.cardInfo}>
+                  <h3 className={styles.cardNombre}>{t.nombre} {t.apellido}</h3>
+                  <p className={styles.cardEspecialidad}>{t.especialidad || 'Sin especialidad'}</p>
+                  {t.trabajosActivos > 0 && (
+                    <span className={styles.workBadge}>{t.trabajosActivos} trabajo{t.trabajosActivos !== 1 ? 's' : ''} activo{t.trabajosActivos !== 1 ? 's' : ''}</span>
+                  )}
+                </div>
+              </div>
+              <div className={styles.cardMeta}>
+                {t.telefono && <span>📞 {t.telefono}</span>}
+                {t.dni && <span>🪪 DNI {t.dni}</span>}
+                {t.email && <span>✉️ {t.email}</span>}
+              </div>
+              <div className={styles.cardActions}>
+                <button className={styles.btnVer} onClick={() => openVer(t)}>Ver ficha</button>
+                <button className={styles.btnEdit} onClick={() => openEditar(t)}>Editar</button>
+                <button
+                  className={t.activo ? styles.btnDeactivate : styles.btnActivate}
+                  onClick={() => toggleActivo(t)}
+                >
+                  {t.activo ? 'Desactivar' : 'Activar'}
+                </button>
+                <button className={styles.btnDelete} onClick={() => eliminar(t)}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" />
+                    <path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
-      {mostrarFormulario && (
-        <Card className={styles.formCard}>
-          <h3 className={styles.formTitle}>
-            {editingId ? 'Editar Técnico' : 'Nuevo Técnico'}
-          </h3>
+      {/* Modal crear/editar */}
+      {(modal === 'crear' || modal === 'editar') && (
+        <div className={styles.modalBg} onClick={closeModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>{modal === 'crear' ? 'Nuevo electricista' : 'Editar electricista'}</h2>
+              <button className={styles.modalClose} onClick={closeModal}>✕</button>
+            </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Avatar */}
             <div className={styles.avatarSection}>
-              <div 
-                className={styles.avatarWrapper}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {avatarPreview ? (
-                  <img src={avatarPreview} alt="Avatar" className={styles.avatarImage} />
+              <div className={styles.avatarEditWrap} onClick={() => fileRef.current?.click()}>
+                {form.avatar ? (
+                  <img src={form.avatar} alt="" className={styles.avatarEditImg} />
                 ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
+                  <div className={styles.avatarEditPlaceholder}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+                      <circle cx="12" cy="8" r="4" /><path d="M20 21a8 8 0 1 0-16 0" />
                     </svg>
                   </div>
                 )}
                 <div className={styles.avatarOverlay}>
-                  📷
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
                 </div>
               </div>
-              <div className={styles.avatarInfo}>
-                <p className={styles.avatarLabel}>Foto del técnico</p>
-                <p className={styles.avatarDesc}>JPG o PNG. Máx 2MB</p>
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
+              <div className={styles.avatarHint}>Clic para subir foto (máx. 3MB)</div>
+            </div>
+
+            <div className={styles.formGrid}>
+              <div className={styles.fg}>
+                <label className={styles.label}>Nombre *</label>
+                <input className={styles.input} value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} placeholder="Juan" />
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                style={{ display: 'none' }}
-              />
+              <div className={styles.fg}>
+                <label className={styles.label}>Apellido *</label>
+                <input className={styles.input} value={form.apellido} onChange={(e) => setForm({ ...form, apellido: e.target.value })} placeholder="Pérez" />
+              </div>
+              <div className={styles.fg}>
+                <label className={styles.label}>DNI</label>
+                <input className={styles.input} value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value })} placeholder="30.123.456" />
+              </div>
+              <div className={styles.fg}>
+                <label className={styles.label}>Teléfono</label>
+                <input className={styles.input} value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} placeholder="+54 221 123-4567" />
+              </div>
+              <div className={styles.fg}>
+                <label className={styles.label}>Email</label>
+                <input className={styles.input} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="juan@email.com" />
+              </div>
+              <div className={styles.fg}>
+                <label className={styles.label}>Especialidad</label>
+                <select className={styles.input} value={form.especialidad} onChange={(e) => setForm({ ...form, especialidad: e.target.value })}>
+                  <option value="">Seleccionar...</option>
+                  {ESPECIALIDADES.map((e) => <option key={e} value={e}>{e}</option>)}
+                </select>
+              </div>
+              <div className={styles.fgFull}>
+                <label className={styles.label}>Antecedentes / Certificaciones</label>
+                <textarea className={styles.textarea} rows={3} value={form.antecedentes} onChange={(e) => setForm({ ...form, antecedentes: e.target.value })} placeholder="Habilitaciones, cursos, matrículas, historial profesional..." />
+              </div>
+              <div className={styles.fgFull}>
+                <label className={styles.label}>Observaciones internas</label>
+                <textarea className={styles.textarea} rows={2} value={form.observaciones} onChange={(e) => setForm({ ...form, observaciones: e.target.value })} placeholder="Notas internas del equipo..." />
+              </div>
             </div>
 
-            <div className={styles.formRow}>
-              <Input
-                label="Nombre *"
-                name="nombre"
-                required
-                value={formData.nombre}
-                onChange={handleChange}
-                placeholder="Juan"
-              />
-              <Input
-                label="Apellido *"
-                name="apellido"
-                required
-                value={formData.apellido}
-                onChange={handleChange}
-                placeholder="Pérez"
-              />
+            {error && <p className={styles.errorMsg}>{error}</p>}
+            <div className={styles.modalActions}>
+              <button className={styles.btnSecondary} onClick={closeModal}>Cancelar</button>
+              <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
+                {saving ? 'Guardando...' : modal === 'crear' ? 'Crear electricista' : 'Guardar cambios'}
+              </button>
             </div>
-
-            <Input
-              label="Especialidad"
-              name="especialidad"
-              value={formData.especialidad}
-              onChange={handleChange}
-              placeholder="Ej: Instalaciones, Tableros, Aire Acondicionado..."
-            />
-
-            <Input
-              label="Teléfono"
-              name="telefono"
-              type="tel"
-              value={formData.telefono}
-              onChange={handleChange}
-              placeholder="+54 9 221 XXX XXXX"
-            />
-
-            <div className={styles.formActions}>
-              <Button type="button" variant="secondary" onClick={resetForm}>
-                Cancelar
-              </Button>
-              <Button type="submit" variant="primary">
-                {editingId ? 'Guardar Cambios' : 'Agregar Técnico'}
-              </Button>
-            </div>
-          </form>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* Lista */}
-      <div className={styles.grid}>
-        {tecnicos.map((tecnico) => (
-          <Card key={tecnico.id} className={`${styles.tecnicoCard} ${!tecnico.activo ? styles.inactivo : ''}`}>
-            <div className={styles.tecnicoAvatar}>
-              {tecnico.avatar ? (
-                <img src={tecnico.avatar} alt={tecnico.nombre} className={styles.tecnicoAvatarImg} />
+      {/* Modal ver ficha */}
+      {modal === 'ver' && selected && (
+        <div className={styles.modalBg} onClick={closeModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Ficha del electricista</h2>
+              <button className={styles.modalClose} onClick={closeModal}>✕</button>
+            </div>
+            <div className={styles.fichaTop}>
+              {selected.avatar ? (
+                <img src={selected.avatar} alt={selected.nombre} className={styles.fichaAvatar} />
               ) : (
-                <div className={styles.tecnicoAvatarPlaceholder}>
-                  {tecnico.nombre.charAt(0)}{tecnico.apellido.charAt(0)}
-                </div>
+                <div className={styles.fichaAvatarPlaceholder}>{selected.nombre[0]}{selected.apellido[0]}</div>
               )}
-              <span className={`${styles.estadoBadge} ${tecnico.activo ? styles.activo : styles.inactivoBadge}`}>
-                {tecnico.activo ? 'Activo' : 'Inactivo'}
-              </span>
+              <div>
+                <h3 className={styles.fichaNombre}>{selected.nombre} {selected.apellido}</h3>
+                <p className={styles.fichaEspecialidad}>{selected.especialidad || 'Sin especialidad'}</p>
+                <span className={`${styles.badge} ${selected.activo ? styles.badgeActivo : styles.badgeInactivo}`}>
+                  {selected.activo ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
             </div>
-            <div className={styles.tecnicoInfo}>
-              <h4 className={styles.tecnicoNombre}>
-                {tecnico.nombre} {tecnico.apellido}
-              </h4>
-              {tecnico.especialidad && (
-                <p className={styles.tecnicoEspecialidad}>⚡ {tecnico.especialidad}</p>
-              )}
-              {tecnico.telefono && (
-                <p className={styles.tecnicoTelefono}>📱 {tecnico.telefono}</p>
-              )}
+            <div className={styles.fichaGrid}>
+              {selected.dni && <FichaItem label="DNI" value={selected.dni} />}
+              {selected.telefono && <FichaItem label="Teléfono" value={selected.telefono} />}
+              {selected.email && <FichaItem label="Email" value={selected.email} />}
+              <FichaItem label="Trabajos activos" value={String(selected.trabajosActivos)} />
             </div>
-            <div className={styles.tecnicoActions}>
-              <Button variant="secondary" size="small" onClick={() => handleEdit(tecnico)}>
+            {selected.antecedentes && (
+              <div className={styles.fichaSection}>
+                <h4 className={styles.fichaSectionTitle}>Antecedentes / Certificaciones</h4>
+                <p className={styles.fichaText}>{selected.antecedentes}</p>
+              </div>
+            )}
+            {selected.observaciones && (
+              <div className={styles.fichaSection}>
+                <h4 className={styles.fichaSectionTitle}>Observaciones internas</h4>
+                <p className={styles.fichaText}>{selected.observaciones}</p>
+              </div>
+            )}
+            <div className={styles.modalActions}>
+              <button className={styles.btnSecondary} onClick={closeModal}>Cerrar</button>
+              <button className={styles.btnPrimary} onClick={() => { closeModal(); setTimeout(() => openEditar(selected), 50); }}>
                 Editar
-              </Button>
-              <Button 
-                variant={tecnico.activo ? 'secondary' : 'primary'} 
-                size="small"
-                onClick={() => handleToggleActivo(tecnico.id, tecnico.activo)}
-              >
-                {tecnico.activo ? 'Desactivar' : 'Activar'}
-              </Button>
-              <Button 
-                variant="secondary" 
-                size="small"
-                onClick={() => handleDelete(tecnico.id)}
-                style={{ color: '#ef4444' }}
-              >
-                Eliminar
-              </Button>
+              </button>
             </div>
-          </Card>
-        ))}
-      </div>
-
-      {tecnicos.length === 0 && !mostrarFormulario && (
-        <Card className={styles.emptyState}>
-          <p>No hay técnicos cargados. Agregá el primero.</p>
-        </Card>
+          </div>
+        </div>
       )}
+    </div>
+  );
+}
+
+function FichaItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={styles.fichaItem}>
+      <span className={styles.fichaLabel}>{label}</span>
+      <span className={styles.fichaValue}>{value}</span>
     </div>
   );
 }

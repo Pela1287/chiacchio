@@ -1,135 +1,50 @@
-// ============================================
-// CHIACCHIO - API Técnicos [id]
-// ============================================
-
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-// GET - Obtener un técnico
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-
-    const tecnico = await prisma.tecnico.findUnique({
-      where: { id }
-    });
-
-    if (!tecnico) {
-      return NextResponse.json({ error: 'Técnico no encontrado' }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      id: tecnico.id,
-      nombre: tecnico.nombre,
-      apellido: tecnico.apellido,
-      especialidad: tecnico.especialidad,
-      telefono: tecnico.telefono,
-      avatar: tecnico.avatar,
-      activo: tecnico.activo,
-    });
-
-  } catch (error) {
-    console.error('Error obteniendo técnico:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
-  }
+export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+  const tecnico = await prisma.tecnico.findUnique({
+    where: { id: params.id },
+    include: {
+      solicitudes: {
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        include: { cliente: { select: { nombre: true, apellido: true } } },
+      },
+    },
+  });
+  if (!tecnico) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+  return NextResponse.json(tecnico);
 }
 
-// PUT - Actualizar técnico
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
-    const { nombre, apellido, especialidad, telefono, avatar } = body;
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-    const tecnico = await prisma.tecnico.update({
-      where: { id },
-      data: {
-        nombre,
-        apellido,
-        especialidad: especialidad || null,
-        telefono: telefono || null,
-        avatar: avatar || null,
-      }
-    });
+  const body = await request.json();
+  const { nombre, apellido, email, dni, especialidad, telefono, avatar, antecedentes, observaciones } = body;
 
-    return NextResponse.json({ 
-      success: true,
-      tecnico: {
-        id: tecnico.id,
-        nombre: tecnico.nombre,
-        apellido: tecnico.apellido,
-        especialidad: tecnico.especialidad,
-        telefono: tecnico.telefono,
-        avatar: tecnico.avatar,
-        activo: tecnico.activo,
-      }
-    });
-
-  } catch (error) {
-    console.error('Error actualizando técnico:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
-  }
+  const tecnico = await prisma.tecnico.update({
+    where: { id: params.id },
+    data: { nombre, apellido, email, dni, especialidad, telefono, avatar, antecedentes, observaciones },
+  });
+  return NextResponse.json(tecnico);
 }
 
-// PATCH - Actualizar parcialmente (ej: activar/desactivar)
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const body = await request.json();
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-    const tecnico = await prisma.tecnico.update({
-      where: { id },
-      data: body
-    });
-
-    return NextResponse.json({ 
-      success: true,
-      tecnico 
-    });
-
-  } catch (error) {
-    console.error('Error actualizando técnico:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
-  }
+  const body = await request.json();
+  const tecnico = await prisma.tecnico.update({ where: { id: params.id }, data: body });
+  return NextResponse.json(tecnico);
 }
 
-// DELETE - Eliminar técnico
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
+export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-    await prisma.tecnico.delete({
-      where: { id }
-    });
-
-    return NextResponse.json({ success: true });
-
-  } catch (error) {
-    console.error('Error eliminando técnico:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
-  }
+  await prisma.tecnico.delete({ where: { id: params.id } });
+  return NextResponse.json({ ok: true });
 }

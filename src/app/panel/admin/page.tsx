@@ -237,6 +237,14 @@ export default function AdminDashboard() {
             <span className={styles.accesoLabel}>Membresías</span>
             <span className={styles.accesoDesc}>Activar membresías</span>
           </button>
+          <button 
+            className={styles.accesoCard}
+            onClick={() => router.push('/panel/admin/tecnicos')}
+          >
+            <span className={styles.accesoIcon}>⚡</span>
+            <span className={styles.accesoLabel}>Electricistas</span>
+            <span className={styles.accesoDesc}>Gestionar técnicos y asignaciones</span>
+          </button>
         </div>
       </div>
 

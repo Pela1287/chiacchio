@@ -108,9 +108,7 @@ export default function HomePage() {
           </div>
           <div className={styles.heroImage}>
             <div className={styles.heroImagePlaceholder}>
-              <svg className={styles.heroIcon} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 3L4 9v12h5v-7h6v7h5V9l-8-6z" />
-              </svg>
+              <img src="/logo-chiacchio.png" alt="Chiacchio" className={styles.heroLogo} />
             </div>
           </div>
         </div>

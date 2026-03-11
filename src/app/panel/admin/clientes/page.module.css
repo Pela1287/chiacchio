@@ -132,67 +132,102 @@
   border-radius: var(--border-radius-lg);
 }
 
+/* GRID CLIENTES */
+
 .clientesGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
-@media (min-width: 768px) {
-  .clientesGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+
+/* TARJETA CLIENTE */
+
+.clientCard {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  padding: 12px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  transition: all 0.15s ease;
 }
+
+.clientCard:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+
+/* HEADER */
+
+.clientHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clientInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.clientName {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.clientEmail {
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* BADGES */
 
 .clientBadges {
   display: flex;
-  gap: var(--space-2);
+  align-items: center;
+}
+
+
+/* DETALLES */
+
+.clientDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 12px;
 }
 
 .detailItem {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  gap: 4px;
 }
 
 .detailLabel {
-  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
 }
 
 .detailValue {
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
-.modalInfo {
-  background: var(--bg-tertiary);
-  padding: var(--space-4);
-  border-radius: var(--border-radius);
-}
 
-.modalInfo p {
-  margin-bottom: var(--space-2);
-}
+/* ACCIONES */
 
-.modalInfo p:last-child {
-  margin-bottom: 0;
-}
-
-.modalForm {
+.clientActions {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-4);
-}
-
-@media (max-width: 640px) {
-  .formRow {
-    grid-template-columns: 1fr;
-  }
-}

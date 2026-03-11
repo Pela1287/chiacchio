@@ -4,6 +4,7 @@
 # ============================================
 
 import sys
+import os
 import json
 from datetime import datetime
 from reportlab.lib.pagesizes import A4
@@ -11,14 +12,10 @@ from reportlab.lib.units import cm, mm
 from reportlab.lib.colors import HexColor, black, white
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase.pdfmetrics import registerFontFamily
 
-# Registrar fuentes
-pdfmetrics.registerFont(TTFont('Times New Roman', '/usr/share/fonts/truetype/english/Times-New-Roman.ttf'))
-registerFontFamily('Times New Roman', normal='Times New Roman', bold='Times New Roman')
+
 
 # Colores
 PRIMARY = HexColor('#1e3a5f')
@@ -49,8 +46,6 @@ def format_date_es(date_str):
 def generate_presupuesto_pdf(presupuesto_json, output_path):
     """Generar PDF de presupuesto"""
 
-    presupuesto = json.loads(presupuesto_json)
-
     doc = SimpleDocTemplate(
         output_path,
         pagesize=A4,
@@ -66,7 +61,7 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
     # Estilos
     title_style = ParagraphStyle(
         'Title',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=28,
         textColor=PRIMARY,
         alignment=TA_CENTER,
@@ -75,7 +70,7 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
 
     subtitle_style = ParagraphStyle(
         'Subtitle',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=12,
         textColor=DARK_GRAY,
         alignment=TA_CENTER,
@@ -84,7 +79,7 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
 
     center_style = ParagraphStyle(
         'Center',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=9,
         textColor=DARK_GRAY,
         alignment=TA_CENTER
@@ -92,21 +87,21 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
 
     label_style = ParagraphStyle(
         'Label',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=10,
         textColor=DARK_GRAY,
     )
 
     value_style = ParagraphStyle(
         'Value',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=11,
         textColor=black,
     )
 
     header_cell = ParagraphStyle(
         'HeaderCell',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=10,
         textColor=white,
         alignment=TA_CENTER
@@ -114,21 +109,28 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
 
     body_cell = ParagraphStyle(
         'BodyCell',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=10,
         textColor=black,
     )
 
     body_cell_right = ParagraphStyle(
         'BodyCellRight',
-        fontName='Times New Roman',
+        fontName='Times-Roman',
         fontSize=10,
         textColor=black,
         alignment=TA_RIGHT
     )
 
     # ===== MEMBRETE =====
-    story.append(Paragraph('<b>CHIACCHIO</b>', title_style))
+    logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'public', 'logo-chiacchio.png')
+    if os.path.exists(logo_path):
+        logo = Image(logo_path, width=3.5*cm, height=3.5*cm)
+        logo.hAlign = 'LEFT'
+        story.append(logo)
+        story.append(Spacer(1, 8))
+    else:
+        story.append(Paragraph('<b>CHIACCHIO</b>', title_style))
     story.append(Paragraph('Servicios de Mantenimiento Electrico', subtitle_style))
     story.append(Paragraph('Tel: +54 9 221 601-1455 | La Plata, Buenos Aires', center_style))
     story.append(Spacer(1, 15))
@@ -140,16 +142,16 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
     story.append(Spacer(1, 25))
 
     # ===== TITULO PRESUPUESTO =====
-    pres_title = ParagraphStyle('PresTitle', fontName='Times New Roman', fontSize=18,
+    pres_title = ParagraphStyle('PresTitle', fontName='Times-Roman', fontSize=18,
                                 textColor=PRIMARY, alignment=TA_CENTER, spaceAfter=25)
-    story.append(Paragraph(f'<b>PRESUPUESTO N° {presupuesto.get("numero", "")}</b>', pres_title))
+    story.append(Paragraph(f'<b>PRESUPUESTO N° {presupuesto_json.get("numero", "")}</b>', pres_title))
 
     # ===== DATOS DEL CLIENTE =====
-    cliente = presupuesto.get('cliente', {}) or {}
-    cliente_nombre = presupuesto.get('clienteNombre') or f"{cliente.get('nombre', '')} {cliente.get('apellido', '')}".strip()
-    cliente_direccion = presupuesto.get('clienteDireccion') or cliente.get('direccion', '-')
-    cliente_telefono = presupuesto.get('clienteTelefono') or cliente.get('telefono', '-')
-    cliente_email = presupuesto.get('clienteEmail') or cliente.get('email', '')
+    cliente = presupuesto_json.get('cliente', {}) or {}
+    cliente_nombre = presupuesto_json.get('clienteNombre') or f"{cliente.get('nombre', '')} {cliente.get('apellido', '')}".strip()
+    cliente_direccion = presupuesto_json.get('clienteDireccion') or cliente.get('direccion', '-')
+    cliente_telefono = presupuesto_json.get('clienteTelefono') or cliente.get('telefono', '-')
+    cliente_email = presupuesto_json.get('clienteEmail') or cliente.get('email', '')
 
     info_data = [
         [Paragraph('<b>Cliente:</b>', label_style), Paragraph(cliente_nombre or '-', value_style)],
@@ -169,10 +171,10 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
     story.append(Spacer(1, 15))
 
     # Lugar y fecha
-    lugar = presupuesto.get('lugar', 'La Plata')
-    fecha = presupuesto.get('fecha', '')
+    lugar = presupuesto_json.get('lugar', 'La Plata')
+    fecha = presupuesto_json.get('fecha', '')
     lugar_fecha = f'{lugar}, {format_date_es(fecha)}'
-    story.append(Paragraph(lugar_fecha, ParagraphStyle('LugarFecha', fontName='Times New Roman',
+    story.append(Paragraph(lugar_fecha, ParagraphStyle('LugarFecha', fontName='Times-Roman',
                                                         fontSize=11, textColor=DARK_GRAY, alignment=TA_RIGHT)))
     story.append(Spacer(1, 25))
 
@@ -186,7 +188,7 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
     ]
 
     items_data = [items_header]
-    items = presupuesto.get('items', [])
+    items = presupuesto_json.get('items', [])
     for idx, item in enumerate(items, 1):
         items_data.append([
             Paragraph(str(idx), body_cell),
@@ -219,13 +221,13 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
     story.append(Spacer(1, 25))
 
     # ===== TOTALES =====
-    subtotal = presupuesto.get('subtotal', 0)
-    desc_pct = presupuesto.get('descuentoPorcentaje', 0)
-    desc_monto = presupuesto.get('descuentoMonto', 0)
-    total = presupuesto.get('total', 0)
-    financiacion = presupuesto.get('financiacion', 'contado')
+    subtotal = presupuesto_json.get('subtotal', 0)
+    desc_pct = float(presupuesto_json.get("descuentoPorcentaje", 0) or 0)
+    desc_monto = float(presupuesto_json.get("descuentoMonto", 0) or 0)
+    total = presupuesto_json.get('total', 0)
+    financiacion = presupuesto_json.get('financiacion', 'contado')
 
-    totals_right = ParagraphStyle('TR', fontName='Times New Roman', fontSize=11, alignment=TA_RIGHT)
+    totals_right = ParagraphStyle('TR', fontName='Times-Roman', fontSize=11, alignment=TA_RIGHT)
 
     totals_data = [
         ['', Paragraph('<b>Subtotal:</b>', totals_right), Paragraph(format_price(subtotal), body_cell_right)],
@@ -233,10 +235,10 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
 
     if desc_pct > 0:
         totals_data.append(['',
-                           Paragraph(f'<b>Descuento ({desc_pct}%):</b>', ParagraphStyle('TRG', fontName='Times New Roman', fontSize=11, alignment=TA_RIGHT, textColor=HexColor('#059669'))),
+                           Paragraph(f'<b>Descuento ({desc_pct}%):</b>', ParagraphStyle('TRG', fontName='Times-Roman', fontSize=11, alignment=TA_RIGHT, textColor=HexColor('#059669'))),
                            Paragraph(f'- {format_price(desc_monto)}', ParagraphStyle('GR', parent=body_cell_right, textColor=HexColor('#059669')))])
 
-    total_style = ParagraphStyle('Total', fontName='Times New Roman', fontSize=14, textColor=PRIMARY, alignment=TA_RIGHT)
+    total_style = ParagraphStyle('Total', fontName='Times-Roman', fontSize=14, textColor=PRIMARY, alignment=TA_RIGHT)
     totals_data.append(['',
                        Paragraph('<b>TOTAL:</b>', total_style),
                        Paragraph(format_price(total), total_style)])
@@ -262,16 +264,16 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
     story.append(Spacer(1, 35))
 
     # ===== NOTAS =====
-    notas = presupuesto.get('notas', '')
+    notas = presupuesto_json.get('notas', '')
     if notas:
         story.append(Paragraph('<b>Notas:</b>', label_style))
-        story.append(Paragraph(notas, ParagraphStyle('Notas', fontName='Times New Roman', fontSize=10)))
+        story.append(Paragraph(notas, ParagraphStyle('Notas', fontName='Times-Roman', fontSize=10)))
         story.append(Spacer(1, 25))
 
     # ===== FIRMAS =====
     story.append(Spacer(1, 30))
 
-    firma_style = ParagraphStyle('Firma', fontName='Times New Roman', fontSize=10, alignment=TA_CENTER)
+    firma_style = ParagraphStyle('Firma', fontName='Times-Roman', fontSize=10, alignment=TA_CENTER)
 
     firmas_data = [
         [Paragraph('_', firma_style), '', Paragraph('_', firma_style)],
@@ -290,7 +292,7 @@ def generate_presupuesto_pdf(presupuesto_json, output_path):
     story.append(Spacer(1, 25))
 
     # ===== FOOTER =====
-    footer_style = ParagraphStyle('Footer', fontName='Times New Roman', fontSize=8,
+    footer_style = ParagraphStyle('Footer', fontName='Times-Roman', fontSize=8,
                                   textColor=HexColor('#9ca3af'), alignment=TA_CENTER)
     story.append(Paragraph('Presupuesto valido por 30 dias. Condiciones sujetas a verificacion tecnica in situ.',
                           footer_style))
@@ -304,8 +306,11 @@ if __name__ == '__main__':
         print("Uso: python generate_presupuesto_pdf.py <presupuesto_json> <output_path>")
         sys.exit(1)
 
-    presupuesto_json = sys.argv[1]
+    json_path = sys.argv[1]
     output_path = sys.argv[2]
 
-    result = generate_presupuesto_pdf(presupuesto_json, output_path)
-    print(result)
+    with open(json_path, "r", encoding="utf-8-sig") as f:
+        presupuesto = json.load(f)
+
+    generate_presupuesto_pdf(presupuesto, output_path)
+

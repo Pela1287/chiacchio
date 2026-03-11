@@ -364,7 +364,8 @@ export default function PresupuestosPage() {
 
   if (loading) {
     return <LoadingOverlay text="Cargando presupuestos..." />;
-  }
+  };
+
 
   return (
     <>
@@ -729,53 +730,66 @@ export default function PresupuestosPage() {
       )}
 
       {/* Modal PDF */}
-      {pdfModalOpen && selectedPresupuesto && (
-        <div className={styles.modalOverlay} onClick={() => setPdfModalOpen(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2 className={styles.modalTitle}>Generar PDF</h2>
-              <button className={styles.modalClose} onClick={() => setPdfModalOpen(false)}>
-                ×
-              </button>
-            </div>
+{pdfModalOpen && selectedPresupuesto && (
+  <>
+    <div className={styles.modalOverlay} onClick={() => setPdfModalOpen(false)}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>Generar PDF</h2>
+          <button className={styles.modalClose} onClick={() => setPdfModalOpen(false)}>
+            ×
+          </button>
+        </div>
 
-            <div className={styles.modalBody}>
-              <div className={styles.pdfPreview}>
-                <p>
-                  <strong>Presupuesto #{selectedPresupuesto.numero}</strong>
-                </p>
-                <p>
-                  Cliente:{' '}
-                  {selectedPresupuesto.clienteNombre ||
-                    `${selectedPresupuesto.cliente?.nombre} ${selectedPresupuesto.cliente?.apellido}`}
-                </p>
-                <p>Total: {formatPrice(selectedPresupuesto.total)}</p>
-                {selectedPresupuesto.descuentoPorcentaje > 0 && (
-                  <p>Descuento aplicado: {selectedPresupuesto.descuentoPorcentaje}%</p>
-                )}
-              </div>
-            </div>
-
-            <div className={styles.modalFooter}>
-              <button
-                type="button"
-                className={styles.btnSecondary}
-                onClick={() => setPdfModalOpen(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className={styles.btnPrimary}
-                onClick={generatePdf}
-                disabled={generatingPdf}
-              >
-                {generatingPdf ? 'Generando...' : '📄 Descargar PDF'}
-              </button>
-            </div>
+        <div className={styles.modalBody}>
+          <div className={styles.pdfPreview}>
+            <p>
+              <strong>Presupuesto #{selectedPresupuesto.numero}</strong>
+            </p>
+            <p>
+              Cliente:{' '}
+              {selectedPresupuesto.clienteNombre ||
+                `${selectedPresupuesto.cliente?.nombre} ${selectedPresupuesto.cliente?.apellido}`}
+            </p>
+            <p>Total: {formatPrice(selectedPresupuesto.total)}</p>
+            {selectedPresupuesto.descuentoPorcentaje > 0 && (
+              <p>Descuento aplicado: {selectedPresupuesto.descuentoPorcentaje}%</p>
+            )}
           </div>
         </div>
-      )}
+
+        <div className={styles.modalFooter}>
+          <button
+            type="button"
+            className={styles.btnSecondary}
+            onClick={() => setPdfModalOpen(false)}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className={styles.btnPrimary}
+            onClick={generatePdf}
+            disabled={generatingPdf}
+          >
+            {generatingPdf ? 'Generando...' : '📄 Descargar PDF'}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {/* CONTENEDOR OCULTO PARA PDF */}
+    <div id="presupuesto-print" style={{ display: "none" }}>
+      <h2>Presupuesto</h2>
+
+      <p>Cliente: {selectedPresupuesto?.clienteNombre}</p>
+      <p>Dirección: {selectedPresupuesto?.clienteDireccion}</p>
+      <p>Teléfono: {selectedPresupuesto?.clienteTelefono}</p>
+
+      <h3>Total: ${selectedPresupuesto?.total}</h3>
+    </div>
+  </>
+)}
     </>
   );
 }

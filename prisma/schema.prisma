@@ -156,13 +156,16 @@ model Solicitud {
   notas           String?         @db.Text
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+  tecnicoId       String?
   presupuesto     Presupuesto?
   cliente         Cliente         @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   servicio        Servicio        @relation(fields: [servicioId], references: [id])
+  tecnico         Tecnico?        @relation(fields: [tecnicoId], references: [id])
 
   @@index([clienteId])
   @@index([estado])
   @@index([servicioId], map: "solicitudes_servicioId_fkey")
+  @@index([tecnicoId])
   @@map("solicitudes")
 }
 
@@ -270,15 +273,20 @@ model NotificacionWhatsApp {
 }
 
 model Tecnico {
-  id           String   @id @default(cuid())
-  nombre       String
-  apellido     String
-  especialidad String?
-  telefono     String?
-  avatar       String?
-  activo       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String      @id @default(cuid())
+  nombre         String
+  apellido       String
+  email          String?
+  dni            String?
+  especialidad   String?
+  telefono       String?
+  avatar         String?
+  antecedentes   String?     @db.Text
+  observaciones  String?     @db.Text
+  activo         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  solicitudes    Solicitud[]
 
   @@index([activo])
   @@map("tecnicos")

@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    const {
+    let {
       nombre,
       apellido,
       email,
@@ -23,33 +23,46 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validaciones básicas
-    if (!nombre || !apellido || !email || !password) {
+    if (!nombre || !apellido || !email) {
+
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
         { status: 400 }
       );
+
+    }
+
+    // Si no viene password (ej: creado por admin) generamos una
+    if (!password) {
+
+      password = crypto.randomBytes(4).toString("hex"); // 8 caracteres
+
     }
 
     if (password.length < 6) {
+
       return NextResponse.json(
         { error: 'La contraseña debe tener al menos 6 caracteres' },
         { status: 400 }
       );
+
     }
 
-    // Verificar si ya existe
+    // Verificar si ya existe usuario
     const usuarioExistente = await prisma.user.findUnique({
       where: { email }
     });
 
     if (usuarioExistente) {
+
       return NextResponse.json(
         { error: 'Ya existe un usuario con ese email' },
         { status: 400 }
       );
+
     }
 
-    // Transacción completa
+    // Transacción
     const resultado = await prisma.$transaction(async (tx) => {
 
       const hashedPassword = await hash(password, 12);
@@ -67,7 +80,7 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Crear token
+      // Crear token verificación
       const token = crypto.randomBytes(32).toString("hex");
 
       await tx.verificationToken.create({
@@ -96,23 +109,27 @@ export async function POST(request: NextRequest) {
         usuario,
         token
       };
+
     });
 
-    // Enviar email fuera de la transacción
+    // Enviar email verificación
     await sendVerificationEmail(
       resultado.usuario.email,
       resultado.token
     );
 
     return NextResponse.json({
+
       success: true,
       message: 'Usuario creado correctamente. Verificá tu email.',
+
       usuario: {
         id: resultado.usuario.id,
         email: resultado.usuario.email,
         nombre: resultado.usuario.nombre,
         apellido: resultado.usuario.apellido
       }
+
     });
 
   } catch (error) {
@@ -121,10 +138,9 @@ export async function POST(request: NextRequest) {
     console.error(error);
 
     return NextResponse.json(
-      {
-        error: 'Error interno del servidor',
-      },
+      { error: 'Error interno del servidor' },
       { status: 500 }
     );
+
   }
 }

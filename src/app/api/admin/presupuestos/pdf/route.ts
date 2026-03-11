@@ -11,6 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -92,29 +93,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    try {
-      // Ejecutar script Python
-      // En Windows, usar python en lugar de python3
-      const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-      
-      execSync(`"${pythonCmd}" "${scriptPath}" "${presupuestoJson}" "${outputPath}"`, {
-        encoding: 'utf-8',
-        timeout: 30000,
-        maxBuffer: 10 * 1024 * 1024, // 10MB
-      });
+        try {
+      execSync(
+        `python.exe "${scriptPath}" "${jsonTempPath}" "${outputPath}"`,
+        { stdio: "pipe" }
+      );
 
-      // Leer PDF generado
       const pdfBuffer = fs.readFileSync(outputPath);
 
-      // Limpiar archivos temporales
       try {
         fs.unlinkSync(jsonTempPath);
         fs.unlinkSync(outputPath);
-      } catch (e) {
-        // Ignorar errores de limpieza
-      }
+      } catch (e) {}
 
-      // Devolver PDF
       return new NextResponse(pdfBuffer, {
         headers: {
           'Content-Type': 'application/pdf',
@@ -123,18 +114,16 @@ export async function POST(request: NextRequest) {
       });
     } catch (execError) {
       console.error('Error executing Python script:', execError);
-      // Limpiar archivos temporales
       try {
         if (fs.existsSync(jsonTempPath)) fs.unlinkSync(jsonTempPath);
         if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-      } catch (e) {
-        // Ignorar errores de limpieza
-      }
+      } catch (e) {}
       return NextResponse.json(
         { error: 'Error al generar el PDF. Verificá que Python esté instalado.' },
         { status: 500 }
       );
     }
+
   } catch (error) {
     console.error('Error generating PDF:', error);
     return NextResponse.json(

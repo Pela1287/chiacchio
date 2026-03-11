@@ -108,11 +108,10 @@
   justify-content: center;
 }
 
-.heroIcon {
-  width: 200px;
-  height: 200px;
-  color: var(--color-celeste-light);
-  opacity: 0.5;
+.heroLogo {
+  width: 280px;
+  height: 280px;
+  object-fit: contain;
 }
 
 /* ===== FEATURES SECTION (CELESTE) ===== */

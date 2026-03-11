@@ -5,9 +5,7 @@ import { useSession } from 'next-auth/react';
 import { Badge, Button, LoadingOverlay, useToast } from '@/components/ui';
 import { getRolNombre, getRolColor } from '@/lib/rbac';
 import styles from './page.module.css';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { requireRole } from '@/lib/rbac';
+
 
 
 interface Usuario {
@@ -23,9 +21,7 @@ interface Usuario {
 
 
 
-export default async function ServiciosPage() {
-  const session = await getServerSession(authOptions);
-  requireRole(session, 'admin');  // permite admin Y super
+export default function ServiciosPage() {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
