@@ -81,11 +81,11 @@ export default function PrintPresupuesto({ params }: any) {
     <div id="presupuesto-print" style={{ display: "none" }}>
         <h2>Presupuesto</h2>
 
-        <p>Cliente: {selectedPresupuesto?.clienteNombre}</p>
-        <p>Dirección: {selectedPresupuesto?.clienteDireccion}</p>
-        <p>Teléfono: {selectedPresupuesto?.clienteTelefono}</p>
+        <p>Cliente: {presupuesto?.clienteNombre}</p>
+        <p>Dirección: {presupuesto?.clienteDireccion}</p>
+        <p>Teléfono: {presupuesto?.clienteTelefono}</p>
 
-        <h3>Total: ${selectedPresupuesto?.total}</h3>
+        <h3>Total: ${presupuesto?.total}</h3>
         </div>
     </>
   )
