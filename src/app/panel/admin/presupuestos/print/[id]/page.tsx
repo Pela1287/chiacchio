@@ -31,7 +31,8 @@ export default function PrintPresupuesto({ params }: any) {
   <div style={{ padding: 40, fontFamily: "Arial" }}>
 
     <div style={{ marginBottom: 30 }}>
-      <img src="/logo-chiacchio.png" style={{ width: 260 }} />
+      <img src="/logo-chiacchio.png"
+      style={{ width: 260 }} />
     </div>
 
     <h2>Presupuesto #{presupuesto.numero}</h2>
