@@ -27,7 +27,7 @@ export default function PrintPresupuesto({ params }: any) {
   }
 
   return (
-
+    <>
     <div style={{ padding: 40, fontFamily: "Arial" }}>
 
       {/* LOGO */}
@@ -87,5 +87,6 @@ export default function PrintPresupuesto({ params }: any) {
 
         <h3>Total: ${selectedPresupuesto?.total}</h3>
         </div>
+    </>
   )
 }
