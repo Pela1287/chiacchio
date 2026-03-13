@@ -11,6 +11,8 @@ import Link from 'next/link';
 import { Button } from "@/components/ui/Button";
 import { formatearFecha, formatearMoneda } from '@/lib/helpers';
 import styles from './page.module.css';
+import Badge from "@/components/ui/Badge"
+import Card from "@/components/ui/Card"
 
 interface Membresia {
   id: string;
