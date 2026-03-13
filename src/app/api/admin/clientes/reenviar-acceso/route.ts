@@ -12,8 +12,8 @@ import { sendWelcomeEmail } from '@/lib/email';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !['ADMIN', 'SUPER'].includes(session.user?.role)) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session || !['ADMIN','SUPER'].includes(session?.user?.role as string)) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     const { clienteId } = await request.json();
