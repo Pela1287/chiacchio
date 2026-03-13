@@ -153,15 +153,12 @@ export default function ClientesPage() {
 
     try {
 
-      // generar password automática
-      const password = Math.random().toString(36).slice(-8);
-
       const res = await fetch('/api/auth/registro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          password
+          createdByAdmin: true,
         }),
       });
 
@@ -172,7 +169,7 @@ export default function ClientesPage() {
         showToast({
           type: 'success',
           title: 'Cliente creado',
-          message: `${formData.nombre} ${formData.apellido} fue registrado correctamente`
+          message: `${formData.nombre} ${formData.apellido} fue creado. Se le envió un email para que establezca su contraseña.`
         });
 
         console.log("Cliente creado:", formData);
@@ -338,7 +335,44 @@ export default function ClientesPage() {
                   >
                   ⚡ Activar Membresía
                   </button>
+
                 )}
+
+                {/* Reenviar acceso */}
+                <button
+                  onClick={async () => {
+                    const res = await fetch('/api/admin/clientes/reenviar-acceso', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ clienteId: cliente.id }),
+                    });
+                    const d = await res.json();
+                    if (res.ok) {
+                      showToast({ type: 'success', title: 'Acceso enviado', message: d.message });
+                      if (d.link) {
+                        // Email failed but we have a link - show it
+                        setTimeout(() => {
+                          window.prompt('Link para compartir manualmente con el cliente:', d.link);
+                        }, 500);
+                      }
+                    } else {
+                      showToast({ type: 'error', title: 'Error', message: d.error });
+                    }
+                  }}
+                  style={{
+                    marginTop: 8,
+                    padding: '6px 12px',
+                    fontSize: '0.78rem',
+                    background: 'transparent',
+                    border: '1px solid #16a34a',
+                    borderRadius: 6,
+                    color: '#16a34a',
+                    cursor: 'pointer',
+                  }}
+                  title="Reenviar email para que el cliente establezca su contraseña"
+                >
+                  ✉ Reenviar acceso
+                </button>
 
               </div>
 

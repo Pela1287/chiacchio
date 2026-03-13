@@ -12,7 +12,7 @@ export default function QuienesSomosPage() {
       <section className={styles.hero}>
         <h1 className={styles.heroTitle}>Quienes Somos</h1>
         <p className={styles.heroDescription}>
-          Mas de 10 anos brindando soluciones de mantenimiento domiciliario
+          Mas de 10 años brindando soluciones de mantenimiento domiciliario
         </p>
       </section>
 
@@ -27,7 +27,7 @@ export default function QuienesSomosPage() {
             las personas cuidan sus hogares.
           </p>
           <p className={styles.text}>
-            Con el paso de los anos, hemos construido una red de profesionales certificados 
+            Con el paso de los años, hemos construido una red de profesionales de confianza 
             que comparten nuestra vision de excelencia y compromiso con el cliente. Cada tecnico 
             que forma parte de Chiacchio pasa por un riguroso proceso de seleccion y capacitacion 
             continua.
@@ -48,7 +48,7 @@ export default function QuienesSomosPage() {
               </div>
               <h3 className={styles.valueTitle}>Confianza</h3>
               <p className={styles.valueText}>
-                Todos nuestros profesionales estan certificados y verificados. 
+                Todos nuestros profesionales estan verificados. 
                 Tu hogar esta en buenas manos.
               </p>
             </div>
@@ -110,7 +110,7 @@ export default function QuienesSomosPage() {
             </div>
             <div className={styles.statItem}>
               <span className={styles.statValue}>10+</span>
-              <span className={styles.statLabel}>Anos de experiencia</span>
+              <span className={styles.statLabel}>Años de experiencia</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statValue}>98%</span>

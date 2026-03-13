@@ -21,6 +21,7 @@ interface Solicitud {
   prioridad: string;
   fechaSolicitada: string;
   createdAt: string;
+  foto?: string | null;
   cliente: {
     nombre: string;
     apellido: string;
@@ -295,6 +296,16 @@ export default function AdminDashboard() {
                   <div className={styles.descripcionSection}>
                     <p className={styles.descripcion}>{sol.descripcion}</p>
                   </div>
+
+                  {/* Foto del problema */}
+                  {sol.foto && (
+                    <div className={styles.fotoSection}>
+                      <a href={sol.foto} target="_blank" rel="noopener noreferrer" title="Ver foto completa">
+                        <img src={sol.foto} alt="Foto del problema" className={styles.fotoThumb} />
+                      </a>
+                      <span className={styles.fotoLabel}>📷 Foto adjunta — clic para ampliar</span>
+                    </div>
+                  )}
 
                   {/* Ubicación */}
                   <div className={styles.ubicacionSection}>

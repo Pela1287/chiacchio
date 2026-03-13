@@ -10,15 +10,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button, Input } from "@/components/ui";
 import styles from "./page.module.css";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const verified = searchParams.get("verified") === "1";
+  const welcome = searchParams.get("welcome") === "1";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +76,17 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {verified && (
+          <div style={{background:"#d1fae5",border:"1px solid #6ee7b7",borderRadius:8,padding:"12px 16px",marginBottom:16,color:"#065f46",fontSize:"0.875rem",fontWeight:500}}>
+            ✅ ¡Email verificado! Ya podés iniciar sesión.
+          </div>
+        )}
+      {welcome && (
+        <div style={{background:"#d1fae5",border:"1px solid #6ee7b7",borderRadius:8,padding:"12px 16px",marginBottom:16,color:"#065f46",fontSize:"0.875rem",fontWeight:500}}>
+          ✓ Contraseña establecida. Ingresá con tu email y tu nueva contraseña.
+        </div>
+      )}
+
         <form onSubmit={handleSubmit} className={styles.form}>
           <Input
             label="Email"
@@ -106,30 +119,7 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className={styles.divider}>
-          <span className={styles.dividerText}>Usuarios de prueba</span>
-        </div>
 
-        <div className={styles.testAccounts}>
-          <div className={styles.testAccount}>
-            <span className={styles.testRole}>Super Usuario</span>
-            <span className={styles.testCreds}>
-              super@chiacchio.com / admin123
-            </span>
-          </div>
-          <div className={styles.testAccount}>
-            <span className={styles.testRole}>Administrador</span>
-            <span className={styles.testCreds}>
-              admin@chiacchio.com / admin123
-            </span>
-          </div>
-          <div className={styles.testAccount}>
-            <span className={styles.testRole}>Cliente</span>
-            <span className={styles.testCreds}>
-              juan.perez@email.com / cliente123
-            </span>
-          </div>
-        </div>
 
         <div className={styles.footer}>
           <p className={styles.footerText}>

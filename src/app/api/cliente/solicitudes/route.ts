@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { servicioId, tipoTrabajo, urgencia, direccion, ciudad, descripcion, telefono } = body;
+    const { servicioId, tipoTrabajo, urgencia, direccion, ciudad, descripcion, telefono, foto } = body;
 
     const cliente = await prisma.cliente.findFirst({
       where: { usuarioId: session.user.id }
@@ -94,6 +94,11 @@ export async function POST(request: NextRequest) {
 
     const servicioIdFinal = servicioId || 'serv-1';
 
+    const servicio = await prisma.servicio.findFirst({ select: { id: true } });
+    if (!servicio) {
+      return NextResponse.json({ error: 'No hay servicios configurados' }, { status: 500 });
+    }
+
     const solicitud = await prisma.solicitud.create({
       data: {
         clienteId: cliente.id,
@@ -106,6 +111,7 @@ export async function POST(request: NextRequest) {
         estado: 'PENDIENTE',
         prioridad: prioridad as any,
         fechaSolicitada: new Date(),
+        foto: foto || null,
       }
     });
 

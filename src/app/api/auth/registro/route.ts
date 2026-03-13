@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
-import { sendVerificationEmail } from "@/lib/email";
+import { sendVerificationEmail, sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
 
@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
       apellido,
       email,
       telefono,
-      password
+      password,
+      createdByAdmin = false,
     } = body;
 
     // Validaciones básicas
@@ -77,6 +78,8 @@ export async function POST(request: NextRequest) {
           password: hashedPassword,
           rol: 'CLIENTE',
           activo: true,
+          // Si lo crea el admin, verificamos el email de inmediato
+          emailVerified: createdByAdmin ? new Date() : null,
         }
       });
 
@@ -87,7 +90,8 @@ export async function POST(request: NextRequest) {
         data: {
           identifier: usuario.id,
           token,
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24)
+          // Admin-created: 48h para que establezca su contraseña; auto-registro: 24h
+          expires: new Date(Date.now() + 1000 * 60 * 60 * (createdByAdmin ? 48 : 24))
         }
       });
 
@@ -112,24 +116,49 @@ export async function POST(request: NextRequest) {
 
     });
 
-    // Enviar email verificación
-    await sendVerificationEmail(
-      resultado.usuario.email,
-      resultado.token
-    );
+    // Enviar email según el origen
+    let emailEnviado = true;
+    let emailError = '';
+    try {
+      if (createdByAdmin) {
+        await sendWelcomeEmail(
+          resultado.usuario.email,
+          resultado.usuario.nombre,
+          resultado.token,
+          password
+        );
+      } else {
+        await sendVerificationEmail(
+          resultado.usuario.email,
+          resultado.token
+        );
+      }
+    } catch (emailErr: any) {
+      // El email falló (destinatario no verificado en Resend, o error de red)
+      // No bloqueamos la creación del usuario — solo avisamos
+      emailEnviado = false;
+      emailError = emailErr?.message || 'Error desconocido';
+      console.warn('⚠️  Email no enviado:', emailError);
+    }
+
+    const mensaje = createdByAdmin
+      ? emailEnviado
+        ? 'Cliente creado. Se le envió un email para que establezca su contraseña.'
+        : 'Cliente creado correctamente. No se pudo enviar el email (verificá la configuración de Resend o usá "Reenviar acceso").'
+      : emailEnviado
+        ? 'Usuario creado correctamente. Verificá tu email.'
+        : 'Usuario creado. Hubo un problema al enviar el email de verificación.';
 
     return NextResponse.json({
-
       success: true,
-      message: 'Usuario creado correctamente. Verificá tu email.',
-
+      message: mensaje,
+      emailEnviado,
       usuario: {
         id: resultado.usuario.id,
         email: resultado.usuario.email,
         nombre: resultado.usuario.nombre,
         apellido: resultado.usuario.apellido
       }
-
     });
 
   } catch (error) {

@@ -394,3 +394,31 @@
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
+
+/* ---- Foto solicitud (admin) ---- */
+.fotoSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.fotoThumb {
+  width: 72px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.fotoThumb:hover {
+  opacity: 0.85;
+}
+
+.fotoLabel {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}

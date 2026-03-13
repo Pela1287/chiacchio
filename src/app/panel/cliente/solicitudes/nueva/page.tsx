@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -53,6 +53,9 @@ export default function NuevaSolicitudPage() {
     descripcion: '',
     telefono: '',
   });
+  const [foto, setFoto] = useState<string | null>(null);
+  const [fotoNombre, setFotoNombre] = useState('');
+  const fotoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -115,7 +118,7 @@ export default function NuevaSolicitudPage() {
       const res = await fetch('/api/cliente/solicitudes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, foto }),
       });
 
       if (res.ok) {
@@ -302,6 +305,61 @@ export default function NuevaSolicitudPage() {
                 placeholder="Ejemplo: Se corta la luz cada vez que prendo el aire acondicionado. Ya probé bajar todas las llaves pero sigue pasando..."
                 rows={4}
               />
+            </div>
+          </div>
+
+          {/* Foto opcional */}
+          <div className={styles.formSection}>
+            <h3 className={styles.formSectionTitle}>
+              📷 Foto del problema (opcional)
+            </h3>
+            <div className={styles.fotoUploadArea}>
+              <input
+                ref={fotoInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 5 * 1024 * 1024) {
+                    showToast({ type: 'error', title: 'Imagen muy grande', message: 'Máximo 5MB' });
+                    return;
+                  }
+                  setFotoNombre(file.name);
+                  const reader = new FileReader();
+                  reader.onload = (ev) => setFoto(ev.target?.result as string);
+                  reader.readAsDataURL(file);
+                }}
+              />
+              {foto ? (
+                <div className={styles.fotoPreviewWrap}>
+                  <img src={foto} alt="Foto del problema" className={styles.fotoPreview} />
+                  <div className={styles.fotoInfo}>
+                    <span className={styles.fotoNombre}>{fotoNombre}</span>
+                    <button
+                      type="button"
+                      className={styles.fotoRemove}
+                      onClick={() => { setFoto(null); setFotoNombre(''); }}
+                    >
+                      Eliminar foto
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.fotoBtn}
+                  onClick={() => fotoInputRef.current?.click()}
+                >
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                  <span className={styles.fotoBtnText}>Para mayor detalle, si querés cargá una foto</span>
+                  <span className={styles.fotoBtnSub}>JPG, PNG o WEBP · Máximo 5MB</span>
+                </button>
+              )}
             </div>
           </div>
 

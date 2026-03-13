@@ -231,3 +231,11 @@
   flex-wrap: wrap;
 }
 
+
+.actionBtnSecondary {
+  color: var(--color-primary, #16a34a);
+  border-color: var(--color-primary, #16a34a);
+}
+.actionBtnSecondary:hover {
+  background: rgba(22,163,74,0.08);
+}

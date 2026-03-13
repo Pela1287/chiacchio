@@ -14,7 +14,7 @@ import styles from './ChatWidget.module.css';
 // Respuestas mock del bot
 const respuestasBot: Record<string, string[]> = {
   saludo: [
-    'Hola! Soy el asistente virtual de Chiacchio. Estoy aqui para ayudarte con tus consultas sobre mantenimiento domiciliario.',
+    'Hola! Soy "Chiacchin" el asistente virtual de Chiacchio. Estoy aqui para ayudarte con tus consultas sobre mantenimiento domiciliario.',
     'Como puedo ayudarte hoy?'
   ],
   membresia: [
@@ -125,40 +125,58 @@ export function ChatWidget() {
     return respuestasBot.default;
   };
 
+  const enviarMensajeIA = useCallback(async (texto: string) => {
+    setIsTyping(true);
+    try {
+      // Construir historial para la IA (ultimos 10 mensajes)
+      const historial = messages.slice(-10).map(m => ({
+        role: m.rol === 'bot' ? 'assistant' : 'user',
+        content: m.contenido,
+      }));
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensaje: texto, historial }),
+      });
+
+      const data = await res.json();
+      const respuesta = data.message || 'Disculpá, no pude responder. Contactanos por WhatsApp.';
+
+      setIsTyping(false);
+      addBotMessage(respuesta);
+
+      // Si hay que derivar al admin
+      if (data.needsAdmin) {
+        setTimeout(() => {
+          addBotMessage('Un asesor se va a comunicar con vos a la brevedad. También podés escribirnos al WhatsApp +54 9 221 601-1455.');
+        }, 800);
+      }
+
+      // Si capturó un lead
+      if (data.leadCaptured) {
+        setTimeout(() => {
+          addBotMessage('¡Gracias! Un asesor de Chiacchio te va a contactar pronto.');
+          setShowLeadForm(false);
+        }, 800);
+      }
+    } catch (error) {
+      setIsTyping(false);
+      addBotMessage('Disculpá, hubo un error. Contactanos directamente al WhatsApp +54 9 221 601-1455.');
+    }
+  }, [messages, addBotMessage]);
+
   const handleSend = () => {
     if (!inputValue.trim()) return;
-    
-    addUserMessage(inputValue);
-    const userInput = inputValue;
+    const texto = inputValue.trim();
+    addUserMessage(texto);
     setInputValue('');
-    
-    setIsTyping(true);
-    
-    setTimeout(() => {
-      setIsTyping(false);
-      const responses = processMessage(userInput);
-      
-      responses.forEach((response, index) => {
-        setTimeout(() => {
-          addBotMessage(response);
-        }, index * 800);
-      });
-    }, 1000);
+    enviarMensajeIA(texto);
   };
 
   const handleQuickReply = (reply: string) => {
     addUserMessage(reply);
-    setIsTyping(true);
-    
-    setTimeout(() => {
-      setIsTyping(false);
-      const responses = processMessage(reply);
-      responses.forEach((response, index) => {
-        setTimeout(() => {
-          addBotMessage(response);
-        }, index * 800);
-      });
-    }, 1000);
+    enviarMensajeIA(reply);
   };
 
   const handleLeadSubmit = (e: React.FormEvent) => {

@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
       createdAt: s.createdAt,
       cliente: s.cliente,
       servicio: s.servicio,
+      foto: s.foto || null,
     })));
 
   } catch (error) {

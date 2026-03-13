@@ -51,7 +51,7 @@ export default function NuestrosTecnicosPage() {
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>👷 Nuestros Técnicos</h1>
           <p className={styles.heroSubtitle}>
-            Profesionales matriculados y con años de experiencia en mantenimiento eléctrico domiciliario
+            Profesionales con años de experiencia en mantenimiento eléctrico domiciliario.
           </p>
         </div>
       </section>
@@ -110,8 +110,8 @@ export default function NuestrosTecnicosPage() {
         <div className={styles.infoGrid}>
           <div className={styles.infoItem}>
             <span className={styles.infoIcon}>📜</span>
-            <h3>Matrícula Habilitante</h3>
-            <p>Todos nuestros técnicos cuentan con matrícula profesional vigente.</p>
+            <h3>Atención Profesional</h3>
+            <p>Todos nuestros técnicos cuentan con atención profesional.</p>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoIcon}>⏱️</span>

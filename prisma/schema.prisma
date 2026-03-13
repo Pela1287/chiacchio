@@ -14,7 +14,7 @@ model User {
   nombre        String
   apellido      String
   telefono      String?
-  avatar        String?
+  avatar        String?     @db.LongText
   rol           Rol          @default(CLIENTE)
   activo        Boolean      @default(true)
   emailVerified DateTime?
@@ -154,6 +154,7 @@ model Solicitud {
   fechaProgramada DateTime?
   fechaCompletada DateTime?
   notas           String?         @db.Text
+  foto            String?         @db.LongText
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   tecnicoId       String?
@@ -280,7 +281,7 @@ model Tecnico {
   dni            String?
   especialidad   String?
   telefono       String?
-  avatar         String?
+  avatar         String?     @db.LongText
   antecedentes   String?     @db.Text
   observaciones  String?     @db.Text
   activo         Boolean     @default(true)
