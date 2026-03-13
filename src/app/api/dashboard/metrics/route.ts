@@ -28,7 +28,8 @@ export async function GET() {
       year: "numeric"
     });
 
-    ingresosPorMes[mes] = (ingresosPorMes[mes] || 0) + p.monto;
+    ingresosPorMes[mes] = (ingresosPorMes[mes] || 0) + p.monto.toNumber();
+
   });
 
   const ingresosChart = Object.entries(ingresosPorMes).map(
