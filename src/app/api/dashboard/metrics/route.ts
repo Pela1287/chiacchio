@@ -48,7 +48,7 @@ export async function GET() {
     }
   ];
 
-  const ingresosTotales = pagos.reduce((a, b) => a + b.monto, 0);
+  const ingresosTotales = pagos.reduce((a, b) => a + b.monto.toNumber(), 0);
 
   return NextResponse.json({
     totalClientes,
