@@ -70,14 +70,15 @@ export async function POST(request: NextRequest) {
       if (lead) {
         await prisma.lead.update({
           where: { id: lead.id },
-          data: { 
-            conversacion: {
-              push: {
-                rol: 'user',
-                mensaje: text,
+          data: {
+            conversacion: JSON.stringify([
+              ...(conversacionActual ? JSON.parse(conversacionActual) : []),
+              {
+                rol: "usuario",
+                mensaje: texto,
                 timestamp: new Date().toISOString()
               }
-            }
+            ])
           }
         });
       }
