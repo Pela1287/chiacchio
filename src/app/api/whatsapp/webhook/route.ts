@@ -72,10 +72,9 @@ export async function POST(request: NextRequest) {
           where: { id: lead.id },
           data: {
             conversacion: JSON.stringify([
-              ...(conversacionActual ? JSON.parse(conversacionActual) : []),
               {
-                rol: "usuario",
-                mensaje: texto,
+                rol: "user",
+                mensaje: text,
                 timestamp: new Date().toISOString()
               }
             ])
