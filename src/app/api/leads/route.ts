@@ -1,6 +1,7 @@
 // ============================================
 // CHIACCHIO - API Leads
 // ============================================
+export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from 'next/server';
 import { LeadRepo } from '@/lib/repositories';

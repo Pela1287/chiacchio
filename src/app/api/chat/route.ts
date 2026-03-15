@@ -1,6 +1,8 @@
 // ============================================
 // CHIACCHIO - API Chat Bot
 // ============================================
+export const dynamic = "force-dynamic";
+
 
 import { NextRequest, NextResponse } from 'next/server';
 

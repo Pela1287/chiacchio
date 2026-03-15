@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { sendVerificationEmail } from "@/lib/email"
 
 export async function GET() {

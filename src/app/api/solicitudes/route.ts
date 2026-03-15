@@ -1,6 +1,7 @@
 // ============================================
 // CHIACCHIO - API Solicitudes
 // ============================================
+export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from 'next/server';
 import { SolicitudRepo } from '@/lib/repositories';

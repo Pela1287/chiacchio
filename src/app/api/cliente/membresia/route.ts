@@ -1,6 +1,8 @@
 // ============================================
 // CHIACCHIO - API Membresía del Cliente
 // ============================================
+export const dynamic = "force-dynamic";
+
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
