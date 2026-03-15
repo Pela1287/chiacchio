@@ -1,10 +1,10 @@
-// ============================================
+﻿// ============================================
 // CHIACCHIO - Login
 // ============================================
 
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +12,7 @@ import { Button, Input } from "@/components/ui";
 import styles from "./page.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -35,23 +35,20 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Credenciales incorrectas. Verifica tu email y contraseña.");
+        setError("Credenciales incorrectas. Verifica tu email y contrasena.");
         setLoading(false);
         return;
       }
 
-      // 🔥 Fuerza a traer la sesión ya seteada por NextAuth
       const session = await getSession();
       const role = (session?.user as any)?.role;
 
       if (role === "SUPER") router.replace("/panel/super");
       else if (role === "ADMIN") router.replace("/panel/admin");
       else if (role === "CLIENTE") router.replace("/panel/cliente");
-      else router.replace("/panel"); // fallback
-
-      // Nota: no setLoading(false) porque nos vamos de pantalla
+      else router.replace("/panel");
     } catch (err) {
-      setError("Error al iniciar sesión. Intenta nuevamente.");
+      setError("Error al iniciar sesion. Intenta nuevamente.");
       setLoading(false);
     }
   };
@@ -70,7 +67,7 @@ export default function LoginPage() {
             />
             <span>Chiacchio</span>
           </Link>
-          <h1 className={styles.title}>Iniciar Sesión</h1>
+          <h1 className={styles.title}>Iniciar Sesion</h1>
           <p className={styles.description}>
             Accede a tu panel para gestionar tus servicios
           </p>
@@ -78,14 +75,14 @@ export default function LoginPage() {
 
         {verified && (
           <div style={{background:"#d1fae5",border:"1px solid #6ee7b7",borderRadius:8,padding:"12px 16px",marginBottom:16,color:"#065f46",fontSize:"0.875rem",fontWeight:500}}>
-            ✅ ¡Email verificado! Ya podés iniciar sesión.
+            Email verificado! Ya podes iniciar sesion.
           </div>
         )}
-      {welcome && (
-        <div style={{background:"#d1fae5",border:"1px solid #6ee7b7",borderRadius:8,padding:"12px 16px",marginBottom:16,color:"#065f46",fontSize:"0.875rem",fontWeight:500}}>
-          ✓ Contraseña establecida. Ingresá con tu email y tu nueva contraseña.
-        </div>
-      )}
+        {welcome && (
+          <div style={{background:"#d1fae5",border:"1px solid #6ee7b7",borderRadius:8,padding:"12px 16px",marginBottom:16,color:"#065f46",fontSize:"0.875rem",fontWeight:500}}>
+            Contrasena establecida. Ingresa con tu email y tu nueva contrasena.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <Input
@@ -98,12 +95,12 @@ export default function LoginPage() {
           />
 
           <Input
-            label="Contraseña"
+            label="Contrasena"
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="..."
           />
 
           {error && <p className={styles.error}>{error}</p>}
@@ -119,11 +116,9 @@ export default function LoginPage() {
           </Button>
         </form>
 
-
-
         <div className={styles.footer}>
           <p className={styles.footerText}>
-            ¿No tienes cuenta?{" "}
+            No tienes cuenta?{" "}
             <Link href="/auth/registro" className={styles.footerLink}>
               Registrarse
             </Link>
@@ -131,5 +126,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:'100vh'}}>Cargando...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

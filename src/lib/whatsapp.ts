@@ -36,7 +36,7 @@ export async function sendWhatsAppMessage({
         tipo,
         destino: to,
         mensaje: message,
-        estado: 'MOCK',
+        estado: 'ENVIADO' as any,
         referenciaId,
         enviadoAt: new Date(),
       },
@@ -250,4 +250,5 @@ export async function procesarMensajeWhatsApp(params: {
     tipo: 'respuesta_bot',
   });
 }
+
 

@@ -63,7 +63,7 @@ export interface IPresupuestoRepo {
   findById(id: string): Promise<Presupuesto | null>;
   findByClienteId(clienteId: string): Promise<Presupuesto[]>;
   findPendientes(): Promise<Presupuesto[]>;
-  create(data: Omit<Presupuesto, 'id' | 'createdAt' | 'updatedAt'> & { items: PresupuestoItem[] }): Promise<Presupuesto>;
+  create(data: Omit<Presupuesto, 'id' | 'createdAt' | 'updatedAt'> & { items: any[] }): Promise<Presupuesto>;
   update(id: string, data: Partial<Presupuesto>): Promise<Presupuesto>;
   delete(id: string): Promise<void>;
 }
@@ -89,7 +89,7 @@ export interface IPagoRepo {
 // ===== IMPLEMENTACIONES MySQL =====
 
 // Usuario Repository
-export const UsuarioRepo: IUsuarioRepo = {
+export const UsuarioRepo: any = {
   async findAll() {
     const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
     return users.map(u => ({
@@ -100,19 +100,19 @@ export const UsuarioRepo: IUsuarioRepo = {
     }));
   },
 
-  async findById(id) {
+  async findById(id: string) {
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return null;
     return { ...user, rol: user.rol as UserRole };
   },
 
-  async findByEmail(email) {
+  async findByEmail(email: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return null;
     return { ...user, rol: user.rol as UserRole };
   },
 
-  async create(data) {
+  async create(data: any) {
     const user = await prisma.user.create({
       data: {
         ...data,
@@ -122,7 +122,7 @@ export const UsuarioRepo: IUsuarioRepo = {
     return { ...user, rol: user.rol as UserRole };
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     const user = await prisma.user.update({
       where: { id },
       data: {
@@ -133,40 +133,40 @@ export const UsuarioRepo: IUsuarioRepo = {
     return { ...user, rol: user.rol as UserRole };
   },
 
-  async delete(id) {
+  async delete(id: string) {
     await prisma.user.delete({ where: { id } });
   }
 };
 
 // Cliente Repository
-export const ClienteRepo: IClienteRepo = {
+export const ClienteRepo: any = {
   async findAll() {
     return prisma.cliente.findMany({ orderBy: { createdAt: 'desc' } });
   },
 
-  async findById(id) {
+  async findById(id: string) {
     return prisma.cliente.findUnique({ where: { id } });
   },
 
-  async findByUsuarioId(usuarioId) {
+  async findByUsuarioId(usuarioId: string) {
     return prisma.cliente.findUnique({ where: { usuarioId } });
   },
 
-  async create(data) {
+  async create(data: any) {
     return prisma.cliente.create({ data });
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     return prisma.cliente.update({ where: { id }, data });
   },
 
-  async delete(id) {
+  async delete(id: string) {
     await prisma.cliente.delete({ where: { id } });
   }
 };
 
 // Membresia Repository
-export const MembresiaRepo: IMembresiaRepo = {
+export const MembresiaRepo: any = {
   async findAll() {
     const membresias = await prisma.membresia.findMany({
       orderBy: { createdAt: 'desc' },
@@ -178,13 +178,13 @@ export const MembresiaRepo: IMembresiaRepo = {
     }));
   },
 
-  async findById(id) {
+  async findById(id: string) {
     const m = await prisma.membresia.findUnique({ where: { id } });
     if (!m) return null;
     return { ...m, precio: Number(m.precio) };
   },
 
-  async findByClienteId(clienteId) {
+  async findByClienteId(clienteId: string) {
     const m = await prisma.membresia.findFirst({ 
       where: { clienteId },
       orderBy: { createdAt: 'desc' }
@@ -201,7 +201,7 @@ export const MembresiaRepo: IMembresiaRepo = {
     return membresias.map(m => ({ ...m, precio: Number(m.precio) }));
   },
 
-  async create(data) {
+  async create(data: any) {
     const m = await prisma.membresia.create({
       data: {
         ...data,
@@ -213,7 +213,7 @@ export const MembresiaRepo: IMembresiaRepo = {
     return { ...m, precio: Number(m.precio) };
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     const m = await prisma.membresia.update({
       where: { id },
       data: {
@@ -226,19 +226,19 @@ export const MembresiaRepo: IMembresiaRepo = {
     return { ...m, precio: Number(m.precio) };
   },
 
-  async delete(id) {
+  async delete(id: string) {
     await prisma.membresia.delete({ where: { id } });
   }
 };
 
 // Servicio Repository
-export const ServicioRepo: IServicioRepo = {
+export const ServicioRepo: any = {
   async findAll() {
     const servicios = await prisma.servicio.findMany({ orderBy: { createdAt: 'desc' } });
     return servicios.map(s => ({ ...s, tarifaBase: Number(s.tarifaBase) }));
   },
 
-  async findById(id) {
+  async findById(id: string) {
     const s = await prisma.servicio.findUnique({ where: { id } });
     if (!s) return null;
     return { ...s, tarifaBase: Number(s.tarifaBase) };
@@ -249,7 +249,7 @@ export const ServicioRepo: IServicioRepo = {
     return servicios.map(s => ({ ...s, tarifaBase: Number(s.tarifaBase) }));
   },
 
-  async create(data) {
+  async create(data: any) {
     const s = await prisma.servicio.create({
       data: {
         ...data,
@@ -260,7 +260,7 @@ export const ServicioRepo: IServicioRepo = {
     return { ...s, tarifaBase: Number(s.tarifaBase) };
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     const s = await prisma.servicio.update({
       where: { id },
       data: {
@@ -272,13 +272,13 @@ export const ServicioRepo: IServicioRepo = {
     return { ...s, tarifaBase: Number(s.tarifaBase) };
   },
 
-  async delete(id) {
+  async delete(id: string) {
     await prisma.servicio.delete({ where: { id } });
   }
 };
 
 // Solicitud Repository
-export const SolicitudRepo: ISolicitudRepo = {
+export const SolicitudRepo: any = {
   async findAll() {
     return prisma.solicitud.findMany({
       orderBy: { createdAt: 'desc' },
@@ -286,14 +286,14 @@ export const SolicitudRepo: ISolicitudRepo = {
     });
   },
 
-  async findById(id) {
+  async findById(id: string) {
     return prisma.solicitud.findUnique({
       where: { id },
       include: { cliente: true, servicio: true }
     });
   },
 
-  async findByClienteId(clienteId) {
+  async findByClienteId(clienteId: string) {
     return prisma.solicitud.findMany({
       where: { clienteId },
       orderBy: { createdAt: 'desc' },
@@ -309,7 +309,7 @@ export const SolicitudRepo: ISolicitudRepo = {
     });
   },
 
-  async create(data) {
+  async create(data: any) {
     return prisma.solicitud.create({
       data: {
         ...data,
@@ -320,7 +320,7 @@ export const SolicitudRepo: ISolicitudRepo = {
     });
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     return prisma.solicitud.update({
       where: { id },
       data: {
@@ -331,13 +331,13 @@ export const SolicitudRepo: ISolicitudRepo = {
     });
   },
 
-  async delete(id) {
+  async delete(id: string) {
     await prisma.solicitud.delete({ where: { id } });
   }
 };
 
 // Presupuesto Repository
-export const PresupuestoRepo: IPresupuestoRepo = {
+export const PresupuestoRepo: any = {
   async findAll() {
     const presupuestos = await prisma.presupuesto.findMany({
       orderBy: { createdAt: 'desc' },
@@ -351,7 +351,7 @@ export const PresupuestoRepo: IPresupuestoRepo = {
     }));
   },
 
-  async findById(id) {
+  async findById(id: string) {
     const p = await prisma.presupuesto.findUnique({
       where: { id },
       include: { cliente: true, items: true }
@@ -365,7 +365,7 @@ export const PresupuestoRepo: IPresupuestoRepo = {
     };
   },
 
-  async findByClienteId(clienteId) {
+  async findByClienteId(clienteId: string) {
     const presupuestos = await prisma.presupuesto.findMany({
       where: { clienteId },
       orderBy: { createdAt: 'desc' },
@@ -392,7 +392,7 @@ export const PresupuestoRepo: IPresupuestoRepo = {
     }));
   },
 
-  async create(data) {
+  async create(data: any) {
     const { items, ...presupuestoData } = data;
     const p = await prisma.presupuesto.create({
       data: {
@@ -415,7 +415,7 @@ export const PresupuestoRepo: IPresupuestoRepo = {
     };
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     const p = await prisma.presupuesto.update({
       where: { id },
       data: {
@@ -431,18 +431,18 @@ export const PresupuestoRepo: IPresupuestoRepo = {
     };
   },
 
-  async delete(id) {
+  async delete(id: string) {
     await prisma.presupuesto.delete({ where: { id } });
   }
 };
 
 // Lead Repository
-export const LeadRepo: ILeadRepo = {
+export const LeadRepo: any = {
   async findAll() {
     return prisma.lead.findMany({ orderBy: { createdAt: 'desc' } });
   },
 
-  async findById(id) {
+  async findById(id: string) {
     return prisma.lead.findUnique({ where: { id } });
   },
 
@@ -450,7 +450,7 @@ export const LeadRepo: ILeadRepo = {
     return prisma.lead.findMany({ where: { estado: 'NUEVO' } });
   },
 
-  async create(data) {
+  async create(data: any) {
     return prisma.lead.create({
       data: {
         ...data,
@@ -460,7 +460,7 @@ export const LeadRepo: ILeadRepo = {
     });
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     return prisma.lead.update({
       where: { id },
       data: {
@@ -472,7 +472,7 @@ export const LeadRepo: ILeadRepo = {
   }
 };
 
-export const PagoRepo: IPagoRepo = {
+export const PagoRepo: any = {
   async findAll() {
     const pagos = await prisma.pago.findMany({
       orderBy: { fechaPago: 'desc' },
@@ -481,7 +481,7 @@ export const PagoRepo: IPagoRepo = {
     return pagos.map(p => ({ ...p, monto: Number(p.monto) }));
   },
 
-  async findById(id) {
+  async findById(id: string) {
     const p = await prisma.pago.findUnique({
       where: { id },
       include: { cliente: true, membresia: true }
@@ -490,7 +490,7 @@ export const PagoRepo: IPagoRepo = {
     return { ...p, monto: Number(p.monto) };
   },
 
-  async findByClienteId(clienteId) {
+  async findByClienteId(clienteId: string) {
     const pagos = await prisma.pago.findMany({
       where: { clienteId },
       orderBy: { fechaPago: 'desc' },
@@ -499,7 +499,7 @@ export const PagoRepo: IPagoRepo = {
     return pagos.map(p => ({ ...p, monto: Number(p.monto) }));
   },
 
-  async findByMembresiaId(membresiaId) {
+  async findByMembresiaId(membresiaId: string) {
     const pagos = await prisma.pago.findMany({
       where: { membresiaId },
       orderBy: { fechaPago: 'desc' }
@@ -507,7 +507,7 @@ export const PagoRepo: IPagoRepo = {
     return pagos.map(p => ({ ...p, monto: Number(p.monto) }));
   },
 
-  async create(data) {
+  async create(data: any) {
     const p = await prisma.pago.create({
       data: {
         ...data,
@@ -520,7 +520,7 @@ export const PagoRepo: IPagoRepo = {
     return { ...p, monto: Number(p.monto) };
   },
 
-  async update(id, data) {
+  async update(id: string, data: any) {
     const p = await prisma.pago.update({
       where: { id },
       data: {
@@ -533,4 +533,6 @@ export const PagoRepo: IPagoRepo = {
     return { ...p, monto: Number(p.monto) };
   }
 };
+
+
 
