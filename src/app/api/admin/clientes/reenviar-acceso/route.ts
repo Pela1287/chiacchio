@@ -2,6 +2,7 @@
 // CHIACCHIO - Admin: Reenviar acceso a cliente
 // ============================================
 
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -10,9 +11,14 @@ import crypto from 'crypto';
 import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
-  try {
+
     const session = await getServerSession(authOptions);
-    if (!session || !['ADMIN','SUPER'].includes(session?.user?.role as string)) {
+
+  try {
+    
+   const role = session?.user?.role;
+
+   if (!session || !role || !['ADMIN','SUPER'].includes(role)) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
