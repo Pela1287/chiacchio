@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       descripcion: body.descripcion,
       estado: 'pendiente',
       prioridad: body.prioridad || 'media',
+      fechaSolicitada: new Date()
     });
 
     // Notificar por WhatsApp
