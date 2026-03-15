@@ -49,7 +49,7 @@ const quickReplies = [
 
 export function ChatWidget() {
   const { chatOpen, toggleChat } = useUIStore();
-  const { addLead } = useDataStore();
+ 
   const { showToast } = useToast();
   const [messages, setMessages] = useState<MensajeChat[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -194,7 +194,7 @@ export function ChatWidget() {
       updatedAt: new Date()
     };
     
-    addLead(newLead);
+    
     
     showToast({
       type: 'success',
