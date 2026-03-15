@@ -81,7 +81,7 @@ export default function DashboardPage() {
             nameKey="name"
             outerRadius={120}
           >
-            {data.presupuestosChart.map((_, i) => (
+            {data.presupuestosChart.map((_: any, i: number) => (
               <Cell
                 key={i}
                 fill={i === 0 ? "#00ff88" : "#ff4444"}
