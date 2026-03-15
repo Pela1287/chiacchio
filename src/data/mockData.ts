@@ -545,7 +545,7 @@ export const mockPagos: Pago[] = [
     clienteId: 'cliente-3',
     presupuestoId: 'pres-2',
     monto: 344850,
-    metodo: 'pendiente',
+    metodo: 'transferencia',
     estado: 'pendiente',
     createdAt: new Date('2024-12-10'),
     updatedAt: new Date('2024-12-10')
