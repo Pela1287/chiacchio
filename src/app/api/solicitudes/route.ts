@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
       direccion: body.direccion,
       ciudad: body.ciudad,
       descripcion: body.descripcion,
-      estado: 'PENDIENTE',
-      prioridad: body.prioridad || 'MEDIA',
+      estado: 'pendiente',
+      prioridad: body.prioridad || 'media',
     });
 
     // Notificar por WhatsApp
