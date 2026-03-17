@@ -83,19 +83,9 @@ export default function RegistroPage() {
 
           <div className={regStyles.successBox}>
             <div className={regStyles.successIcon}>✉️</div>
-            <h2 className={regStyles.successTitle}>¡Revisá tu email!</h2>
-            <p className={regStyles.successText}>
-              Te enviamos un enlace de confirmación a:
-            </p>
-            <p className={regStyles.successEmail}>{registeredEmail}</p>
-            <p className={regStyles.successHint}>
-              Hacé clic en el enlace del email para activar tu cuenta.
-              El enlace expira en <strong>24 horas</strong>.
-            </p>
-            <div className={regStyles.successNote}>
-              ¿No recibiste el email? Revisá la carpeta de spam o
-              <Link href="/auth/registro" className={regStyles.reintentarLink}> intentá registrarte nuevamente</Link>.
-            </div>
+            <h2>¡Cuenta creada!</h2>
+              <p>Tu usuario fue creado correctamente. Ya podés iniciar sesión.</p>
+              <a href="/auth/login">Ir a iniciar sesión</a>
           </div>
 
           <div className={styles.footer}>
