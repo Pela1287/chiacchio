@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
-const FROM = process.env.EMAIL_FROM || 'Chiacchio <noreply@chiacchio.com.ar>';
+const FROM = process.env.EMAIL_FROM || 'Chiacchio <onboarding@resend.dev>';
 
 export async function sendVerificationEmail(email: string, token: string) {
   const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
@@ -66,16 +66,24 @@ export async function sendVerificationEmail(email: string, token: string) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  console.log("📨 Enviando verificación a:", email);
+  console.log("📨 FROM:", FROM);
+  console.log("📨 VERIFY URL:", verifyUrl);
+
+  const result = await resend.emails.send({
     from: FROM,
     to: email,
     subject: '⚡ Confirmá tu email — Chiacchio',
     html,
   });
+
+  console.log("✅ RESULTADO RESEND:", result);
+
+  return result;
 }
 
-export async function sendPasswordResetEmail(email: string, token: string) {
-  const resetUrl = `${APP_URL}/auth/reset-password?token=${token}`;
+export async function sendVerificationEmail(email: string, token: string) {
+  const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
 
   const html = `
 <!DOCTYPE html>
@@ -118,12 +126,20 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 </body>
 </html>`;
 
-  await resend.emails.send({
+  console.log("📨 Enviando verificación a:", email);
+  console.log("📨 FROM:", FROM);
+  console.log("📨 VERIFY URL:", verifyUrl);
+
+  const result = await resend.emails.send({
     from: FROM,
     to: email,
-    subject: 'Restablecer contraseña — Chiacchio',
+    subject: '⚡ Confirmá tu email — Chiacchio',
     html,
   });
+
+  console.log("✅ RESULTADO RESEND:", result);
+
+  return result;
 }
 
 export async function sendWelcomeEmail(
