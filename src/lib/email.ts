@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
-const FROM = process.env.EMAIL_FROM || 'Chiacchio <onboarding@resend.dev>';
+const FROM = process.env.EMAIL_FROM || 'Chiacchio <noreply@chiacchio.com.ar>';
 
 export async function sendVerificationEmail(email: string, token: string) {
   const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
@@ -15,20 +15,15 @@ export async function sendVerificationEmail(email: string, token: string) {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f7f9;padding:40px 20px;">
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);">
-        
-        <!-- Header -->
         <tr><td style="background:#1e3a5f;padding:32px;text-align:center;">
           <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:700;letter-spacing:.5px;">⚡ Chiacchio</h1>
           <p style="color:#93c5fd;margin:6px 0 0;font-size:13px;">Servicios de Mantenimiento Eléctrico</p>
         </td></tr>
-        
-        <!-- Body -->
         <tr><td style="padding:40px 40px 32px;">
           <h2 style="color:#111827;font-size:20px;margin:0 0 12px;">Confirmá tu dirección de email</h2>
           <p style="color:#4b5563;font-size:15px;line-height:1.6;margin:0 0 28px;">
             ¡Bienvenido a Chiacchio! Para activar tu cuenta y comenzar a solicitar servicios, necesitás confirmar tu email.
           </p>
-          
           <table cellpadding="0" cellspacing="0" width="100%">
             <tr><td align="center" style="padding-bottom:28px;">
               <a href="${verifyUrl}"
@@ -38,28 +33,23 @@ export async function sendVerificationEmail(email: string, token: string) {
               </a>
             </td></tr>
           </table>
-          
           <p style="color:#6b7280;font-size:13px;margin:0 0 8px;">
             O copiá este enlace en tu navegador:
           </p>
           <p style="color:#2563eb;font-size:12px;word-break:break-all;background:#eff6ff;padding:10px 14px;border-radius:6px;margin:0 0 28px;">
             ${verifyUrl}
           </p>
-          
           <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:0;">
             <p style="color:#92400e;font-size:13px;margin:0;">
               ⏰ Este enlace expira en <strong>24 horas</strong>. Si no creaste esta cuenta, ignorá este email.
             </p>
           </div>
         </td></tr>
-        
-        <!-- Footer -->
         <tr><td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #e5e7eb;text-align:center;">
           <p style="color:#9ca3af;font-size:12px;margin:0;">
             © ${new Date().getFullYear()} Chiacchio · Servicios Eléctricos · La Plata, Buenos Aires
           </p>
         </td></tr>
-        
       </table>
     </td></tr>
   </table>
@@ -82,8 +72,8 @@ export async function sendVerificationEmail(email: string, token: string) {
   return result;
 }
 
-export async function sendVerificationEmail(email: string, token: string) {
-  const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
+export async function sendPasswordResetEmail(email: string, token: string) {
+  const resetUrl = `${APP_URL}/auth/reset-password?token=${token}`;
 
   const html = `
 <!DOCTYPE html>
@@ -126,20 +116,12 @@ export async function sendVerificationEmail(email: string, token: string) {
 </body>
 </html>`;
 
-  console.log("📨 Enviando verificación a:", email);
-  console.log("📨 FROM:", FROM);
-  console.log("📨 VERIFY URL:", verifyUrl);
-
-  const result = await resend.emails.send({
+  await resend.emails.send({
     from: FROM,
     to: email,
-    subject: '⚡ Confirmá tu email — Chiacchio',
+    subject: 'Restablecer contraseña — Chiacchio',
     html,
   });
-
-  console.log("✅ RESULTADO RESEND:", result);
-
-  return result;
 }
 
 export async function sendWelcomeEmail(
