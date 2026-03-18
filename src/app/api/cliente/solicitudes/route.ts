@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // CHIACCHIO - API Solicitudes del Cliente
 // ============================================
 export const dynamic = "force-dynamic";
@@ -12,7 +12,6 @@ import prisma from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
@@ -20,7 +19,6 @@ export async function GET(request: NextRequest) {
     const cliente = await prisma.cliente.findFirst({
       where: { usuarioId: session.user.id }
     });
-
     if (!cliente) {
       return NextResponse.json([]);
     }
@@ -41,74 +39,55 @@ export async function GET(request: NextRequest) {
       fechaProgramada: s.fechaProgramada,
       createdAt: s.createdAt,
     })));
-
   } catch (error) {
     console.error('Error obteniendo solicitudes:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
-
-// POST - Crear nueva solicitud (NO descuenta servicios - es ILIMITADO)
+// POST - Crear nueva solicitud
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     const body = await request.json();
-    const { servicioId, tipoTrabajo, urgencia, direccion, ciudad, descripcion, telefono, foto } = body;
+    const { tipoTrabajo, urgencia, direccion, ciudad, descripcion, telefono, foto } = body;
 
     const cliente = await prisma.cliente.findFirst({
       where: { usuarioId: session.user.id }
     });
-
     if (!cliente) {
       return NextResponse.json({ error: 'Cliente no encontrado' }, { status: 404 });
     }
 
     const membresia = await prisma.membresia.findFirst({
-      where: { 
-        clienteId: cliente.id,
-        estado: 'ACTIVA'
-      }
+      where: { clienteId: cliente.id, estado: 'ACTIVA' }
     });
-
     if (!membresia) {
-      return NextResponse.json({ 
-        error: 'No tienes una membresía activa',
-        needsMembership: true
-      }, { status: 400 });
+      return NextResponse.json({ error: 'No tienes una membresia activa', needsMembership: true }, { status: 400 });
     }
-
-    const prioridadMap: Record<string, string> = {
-      'baja': 'BAJA',
-      'media': 'MEDIA',
-      'alta': 'ALTA',
-      'urgente': 'URGENTE',
-    };
-    const prioridad = prioridadMap[urgencia?.toLowerCase()] || 'MEDIA';
-
-    const servicioIdFinal = servicioId || 'serv-1';
 
     const servicio = await prisma.servicio.findFirst({ select: { id: true } });
     if (!servicio) {
-      return NextResponse.json({ error: 'No hay servicios configurados' }, { status: 500 });
+      return NextResponse.json({ error: 'No hay servicios configurados en el sistema' }, { status: 500 });
     }
+
+    const prioridadMap: Record<string, string> = {
+      baja: 'BAJA', media: 'MEDIA', alta: 'ALTA', urgente: 'URGENTE',
+    };
+    const prioridad = prioridadMap[urgencia?.toLowerCase()] || 'MEDIA';
 
     const solicitud = await prisma.solicitud.create({
       data: {
         clienteId: cliente.id,
-        servicioId: servicioIdFinal,
+        servicioId: servicio.id,
         direccion: direccion || cliente.direccion || 'Sin especificar',
         ciudad: ciudad || cliente.ciudad || 'Sin especificar',
-        descripcion: tipoTrabajo 
-          ? `[${tipoTrabajo}] ${descripcion || ''}` 
-          : descripcion || 'Servicio eléctrico',
+        descripcion: tipoTrabajo
+          ? `[${tipoTrabajo}] ${descripcion || ''}`
+          : descripcion || 'Servicio electrico',
         estado: 'PENDIENTE',
         prioridad: prioridad as any,
         fechaSolicitada: new Date(),
@@ -118,16 +97,10 @@ export async function POST(request: NextRequest) {
 
     await prisma.membresia.update({
       where: { id: membresia.id },
-      data: {
-        serviciosUsados: { increment: 1 },
-      }
+      data: { serviciosUsados: { increment: 1 } }
     });
 
-    return NextResponse.json({
-      success: true,
-      id: solicitud.id,
-      message: 'Solicitud creada correctamente'
-    });
+    return NextResponse.json({ success: true, id: solicitud.id, message: 'Solicitud creada correctamente' });
 
   } catch (error) {
     console.error('Error creando solicitud:', error);
