@@ -39,13 +39,6 @@ export default function ObraPage() {
           </div>
 
           <div className={styles.serviceCard}>
-            <div className={styles.serviceIcon}>⚡</div>
-            <h3>Tiro / Ingeniería</h3>
-            <p>Gestión ante EDENOR para aumento de potencia contratada. Acometida nueva 
-            o ampliación de la existente según la demanda del proyecto.</p>
-          </div>
-
-          <div className={styles.serviceCard}>
             <div className={styles.serviceIcon}>🏭</div>
             <h3>Tablero Principal</h3>
             <p>Instalación del tablero general con llave termomagnética, disyuntor diferencial, 
@@ -79,14 +72,7 @@ export default function ObraPage() {
             <p>Instalación del sistema de puesta a tierra: jabalina, conductor de 
             protección y conexión a todos los puntos de la instalación.</p>
           </div>
-
-          <div className={styles.serviceCard}>
-            <div className={styles.serviceIcon}>📋</div>
-            <h3>Certificación</h3>
-            <p>Certificado de instalación eléctrica firmado por electricista matriculado. 
-            Documentación necesaria para habilitaciones y trámites.</p>
-          </div>
-
+          
         </div>
       </section>
 
