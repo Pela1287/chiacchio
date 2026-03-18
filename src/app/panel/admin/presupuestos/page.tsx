@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    CHIACCHIO - Panel Admin - Presupuestos
    ============================================ */
 
@@ -72,10 +72,7 @@ export default function PresupuestosPage() {
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [pdfModalOpen, setPdfModalOpen] = useState(false);
-  const [selectedPresupuesto, setSelectedPresupuesto] = useState<Presupuesto | null>(null);
   const [saving, setSaving] = useState(false);
-  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -290,57 +287,7 @@ export default function PresupuestosPage() {
     }
   };
 
-  const openPdfModal = (presupuesto: Presupuesto) => {
-    setSelectedPresupuesto(presupuesto);
-    setPdfModalOpen(true);
-  };
-
-  const generatePdf = async () => {
-    if (!selectedPresupuesto) return;
-
-    setGeneratingPdf(true);
-
-    try {
-      const res = await fetch('/api/admin/presupuestos/pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ presupuestoId: selectedPresupuesto.id }),
-      });
-
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Presupuesto_${selectedPresupuesto.numero}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
-        showToast({
-          type: 'success',
-          title: 'PDF generado',
-          message: 'El presupuesto se descargó correctamente',
-        });
-      } else {
-        const error = await res.json();
-        showToast({
-          type: 'error',
-          title: 'Error',
-          message: error.error || 'No se pudo generar el PDF',
-        });
-      }
-    } catch (error) {
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message: 'Error al generar el PDF',
-      });
-    } finally {
-      setGeneratingPdf(false);
-    }
-  };
+  const imprimirPresupuesto = (pres: Presupuesto) => { window.open('/panel/admin/presupuestos/print/' + pres.id, '_blank'); };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-AR', {
@@ -437,9 +384,8 @@ export default function PresupuestosPage() {
                   <div className={styles.actions}>
                     <button
                       className={styles.btnPdf}
-                      onClick={() => openPdfModal(pres)}
-                    >
-                      📄 PDF
+                      onClick={() => imprimirPresupuesto(pres)}>
+                      Imprimir Presupuesto
                     </button>
                   </div>
                 </div>
@@ -728,68 +674,6 @@ export default function PresupuestosPage() {
           </div>
         </div>
       )}
-
-      {/* Modal PDF */}
-{pdfModalOpen && selectedPresupuesto && (
-  <>
-    <div className={styles.modalOverlay} onClick={() => setPdfModalOpen(false)}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Generar PDF</h2>
-          <button className={styles.modalClose} onClick={() => setPdfModalOpen(false)}>
-            ×
-          </button>
-        </div>
-
-        <div className={styles.modalBody}>
-          <div className={styles.pdfPreview}>
-            <p>
-              <strong>Presupuesto #{selectedPresupuesto.numero}</strong>
-            </p>
-            <p>
-              Cliente:{' '}
-              {selectedPresupuesto.clienteNombre ||
-                `${selectedPresupuesto.cliente?.nombre} ${selectedPresupuesto.cliente?.apellido}`}
-            </p>
-            <p>Total: {formatPrice(selectedPresupuesto.total)}</p>
-            {selectedPresupuesto.descuentoPorcentaje > 0 && (
-              <p>Descuento aplicado: {selectedPresupuesto.descuentoPorcentaje}%</p>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.modalFooter}>
-          <button
-            type="button"
-            className={styles.btnSecondary}
-            onClick={() => setPdfModalOpen(false)}
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className={styles.btnPrimary}
-            onClick={generatePdf}
-            disabled={generatingPdf}
-          >
-            {generatingPdf ? 'Generando...' : '📄 Descargar PDF'}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    {/* CONTENEDOR OCULTO PARA PDF */}
-    <div id="presupuesto-print" style={{ display: "none" }}>
-      <h2>Presupuesto</h2>
-
-      <p>Cliente: {selectedPresupuesto?.clienteNombre}</p>
-      <p>Dirección: {selectedPresupuesto?.clienteDireccion}</p>
-      <p>Teléfono: {selectedPresupuesto?.clienteTelefono}</p>
-
-      <h3>Total: ${selectedPresupuesto?.total}</h3>
-    </div>
-  </>
-)}
     </>
   );
 }
