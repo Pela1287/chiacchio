@@ -20,12 +20,8 @@ const tiposTrabajoElectrico = [
   { value: 'interruptor', label: '💡 Interruptor dañado', descripcion: 'No prende/apaga la luz correctamente' },
   { value: 'lampara', label: '💡 Lámpara/Luminiaria', descripcion: 'Problemas con lamparitas o artefactos' },
   { value: 'tablero', label: '🏭 Tablero eléctrico', descripcion: 'Problemas en el tablero principal' },
-  { value: 'aire_instalacion', label: '❄️ Instalación aire acondicionado', descripcion: 'Colocar nuevo equipo' },
-  { value: 'aire_reparacion', label: '❄️ Reparación aire acondicionado', descripcion: 'Equipo con fallas' },
-  { value: 'tiro_ingenia', label: '⬆️ Tiro/Ing. eléctrica', descripcion: 'Subir la potencia contratada' },
   { value: 'puesta_tierra', label: '🌱 Puesta a tierra', descripcion: 'Instalación de toma de tierra' },
   { value: 'cableado', label: '🔗 Cableado nuevo', descripcion: 'Tendido de cables eléctricos' },
-  { value: 'electrodomestico', label: '🔌 Conexión electrodoméstico', descripcion: 'Instalación de estufa, horno, etc.' },
   { value: 'otro', label: '🔧 Otro trabajo eléctrico', descripcion: 'Otro tipo de trabajo eléctrico' },
 ];
 
