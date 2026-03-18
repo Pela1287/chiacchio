@@ -66,27 +66,50 @@ export default function SuperAdminsPage() {
   }
 
   async function crearAdmin() {
+  if (!form.nombre.trim()) {
+    alert("Falta el nombre");
+    return;
+  }
 
-    setLoading(true);
+  if (!form.apellido.trim()) {
+    alert("Falta el apellido");
+    return;
+  }
 
+  if (!form.email.trim()) {
+    alert("Falta el email");
+    return;
+  }
+
+  if (!form.password.trim()) {
+    alert("Falta la contraseña");
+    return;
+  }
+
+  if (!form.sucursalCodigo) {
+    alert("Debes seleccionar una sucursal");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
     const res = await fetch("/api/super/crear-admin", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(form)
+      body: JSON.stringify(form),
     });
 
     const data = await res.json();
 
-    setLoading(false);
-
     if (!res.ok) {
-      alert(data.error);
+      alert(data.error || "No se pudo crear el admin");
       return;
     }
 
-    alert("Admin creado");
+    alert("Admin creado correctamente");
 
     setForm({
       nombre: "",
@@ -94,12 +117,17 @@ export default function SuperAdminsPage() {
       email: "",
       telefono: "",
       password: "",
-      sucursalCodigo: ""
+      sucursalCodigo: "",
     });
 
     cargarAdmins();
+  } catch (error) {
+    console.error("Error creando admin:", error);
+    alert("Error de conexión al crear el admin");
+  } finally {
+    setLoading(false);
   }
-
+}
   return (
     <div style={{ padding: 30 }}>
 
@@ -107,9 +135,19 @@ export default function SuperAdminsPage() {
 
       <h2>Crear Admin</h2>
 
-      <div style={{ display: "grid", gap: 10, maxWidth: 400 }}>
+      <form
+        autoComplete="off"
+        style={{ display: "grid", gap: 10, maxWidth: 400 }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          crearAdmin();
+        }}
+      >
 
         <input
+          id="admin-nombre"
+          name="adminNombre"
+          autoComplete="off"
           placeholder="Nombre"
           value={form.nombre}
           onChange={(e) =>
@@ -118,6 +156,9 @@ export default function SuperAdminsPage() {
         />
 
         <input
+          id="admin-apellido"
+          name="adminApellido"
+          autoComplete="off"
           placeholder="Apellido"
           value={form.apellido}
           onChange={(e) =>
@@ -126,6 +167,10 @@ export default function SuperAdminsPage() {
         />
 
         <input
+          id="admin-email"
+          name="adminEmail"
+          type="email"
+          autoComplete="off"
           placeholder="Email"
           value={form.email}
           onChange={(e) =>
@@ -134,7 +179,11 @@ export default function SuperAdminsPage() {
         />
 
         <input
-          placeholder="Telefono"
+          id="admin-telefono"
+          name="adminTelefono"
+          type="text"
+          autoComplete="off"
+          placeholder="Teléfono"
           value={form.telefono}
           onChange={(e) =>
             setForm({ ...form, telefono: e.target.value })
@@ -142,8 +191,11 @@ export default function SuperAdminsPage() {
         />
 
         <input
-          placeholder="Password"
+          id="admin-password"
+          name="adminPasswordNueva"
           type="password"
+          autoComplete="new-password"
+          placeholder="Contraseña"
           value={form.password}
           onChange={(e) =>
             setForm({ ...form, password: e.target.value })
@@ -151,6 +203,8 @@ export default function SuperAdminsPage() {
         />
 
         <select
+          id="admin-sucursal"
+          name="adminSucursalCodigo"
           value={form.sucursalCodigo}
           onChange={(e) =>
             setForm({ ...form, sucursalCodigo: e.target.value })
@@ -163,16 +217,13 @@ export default function SuperAdminsPage() {
               {s.codigo} - {s.nombre}
             </option>
           ))}
-
         </select>
 
-        <button onClick={crearAdmin} disabled={loading}>
-
+        <button type="submit" disabled={loading}>
           {loading ? "Creando..." : "Crear Admin"}
-
         </button>
 
-      </div>
+      </form>
 
       <hr style={{ margin: "30px 0" }} />
 
